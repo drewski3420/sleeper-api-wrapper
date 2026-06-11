@@ -1,17 +1,44 @@
 import logging
 
 from .base_api import BaseApi
+#from .players import Players
 
 logger = logging.getLogger(__name__)
 
 class Player(BaseApi):
   """Retrieves player data from Sleeper."""
 
-  def __init__(self, data):
-    self.__dict__.update(data)
-    self.name = f"{self.first_name} {self.last_name}"
+  def __init__(
+      self,
+      player_id: str,
+      metadata: dict | None = None,
+      players_data: dict | None = None,
+  ):
+      self.player_id = player_id
+      self._players_data = players_data
+      self._metadata = metadata
 
+      self.__dict__.update(metadata)
 
+      self.full_name = self._get_full_name()
+
+  def metadata(self) -> Dict:
+    if self._metadata is None and self._players_data:
+      self._metadata = self._players_data[self.player_id]
+    return self._metadata
+
+  def _get_full_name(self) -> str:
+    return f"{self.first_name} {self.last_name}"
+#  def __init__(self, player_id: int, all_players: Players):
+#    self.all_players = all_players
+#    self.player_id = player_id
+#    self.data = self._get_player()
+#    self.__dict__.update(data)
+#    self.name = f"{self.first_name} {self.last_name}"
+#
+#
+#  def _get_player() -> Dict:
+#    return next((p for p in self.all_players if p.get("player_id") == self.player_id), None)
 #  def get_all_players(self, sport: str = "nfl") -> dict:
 #    """Gets all players from Sleeper.
 #

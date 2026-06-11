@@ -40,11 +40,12 @@ class Pick:
 ##    self.user_id = self._get_user_id(self.roster_id)
 #    self.player_id = data.get("player_id")
 #    self.draft_id = data.get("draft_id")
-    self.player = self._get_player(data['metadata'])
+    self.player = self._get_player()
     self.raw = data
 
-  def _get_player(self, player_info: dict) -> Player:
-    return Player(player_info)
+  def _get_player(self) -> Player:
+    return Player(self.metadata['player_id'], self.metadata)
+    #Player(player_info)
 
   def _get_round_pick_number(self, overall_pick: int) -> int:
     return ((overall_pick - 1) % 8) + 1

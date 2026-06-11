@@ -46,4 +46,4 @@ class Draft(BaseApi):
 
     return self._traded_picks
 
-  def get_draft_rosters(self) -> list[Roster]:
+#  def get_draft_rosters(self) -> list[Roster]:
