@@ -2,7 +2,7 @@ from typing import Union
 
 from .base_api import BaseApi
 from .stats import Stats
-from .drafts import Draft
+from .draft import Draft
 from .team import Team
 
 class League(BaseApi):
@@ -30,18 +30,12 @@ class League(BaseApi):
     self._league = self._call(self._base_url)
     self.__dict__.update(self._league)
     self.teams = self._get_teams()
+    self.drafts = self._get_drafts()
 
-  def get_all_drafts(self) -> list:
-    """Retrieves all of a league's drafts.
 
-    This will typically return only one draft.
-    """
+  def _get_drafts(self) -> list:
     drafts = self._call("{}/{}".format(self._base_url, "drafts"))
-    return [Draft(draft.get('draft_id')) for draft in drafts]
-
-#  def get_league(self) -> dict:
-#    """Returns the league data."""
-#    return self._league
+    return [Draft(draft.get('draft_id'), self.teams_by_user_id) for draft in drafts]
 
   def _get_teams(self) -> list:
     teams = self._call("{}/{}".format(self._base_url,"rosters"))
