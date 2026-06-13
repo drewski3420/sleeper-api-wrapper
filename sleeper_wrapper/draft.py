@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Union
 
 from .base_api import BaseApi
@@ -13,7 +14,8 @@ class Draft(BaseApi):
     self.picks = self._get_all_picks()
     self.data = self._get_draft()
     self.__dict__.update(self.data)
-    self.last_picked = self.last_picked / 1000
+    self.last_pick_time = datetime.fromtimestamp(self._data.get('last_picked') / 1000)
+    self.draft_start_time = datetime.fromtimestamp(self._data.get('start_time') / 1000)
 
   def _get_draft(self) -> dict:
     return self._call(self._base_url)
@@ -26,14 +28,16 @@ class Draft(BaseApi):
     picks = self._call(f"{self._base_url}/traded_picks")
     return [Pick(pick) for pick in picks]
 
-  def get_roster_counts(self) -> dict[int, dict[str, int]]:
+  def get_roster_counts(self) -> dict[str, dict[str, int]]:
     counts = {}
 
-    for pick in self.picks:
-      #print(f"Round {pick.round} Pick {pick.round_pick_number}: {pick.player.full_name} ({pick.player.position}, Year: {pick.player.years_exp})")
-      roster_id = pick.roster_id
-      position = pick.player.position
+    for p in self.picks:
+#      for team_name, pick in p.items():
+        #print(f"Round {pick.round} Pick {pick.round_pick_number}: {pick.player.full_name} ({pick.player.position}, Year: {pick.player.years_exp})")
+      roster_id = p.team_name #pick.roster_id
+      position = p.player.position
 
+      
       counts.setdefault(roster_id, {})
       counts[roster_id][position] = counts[roster_id].get(position, 0) + 1
 
