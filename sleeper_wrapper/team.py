@@ -1,27 +1,29 @@
+
 from typing import Union
 
 from .base_api import BaseApi
-from .players import Players
+from .all_players import AllPlayers
+from .user import User
 #from .player import Player
 
 class Team:
   def __init__(self, data: dict):
 #    print(data)
-    players = Players()
     self.__dict__.update(data) #expand all properties
     self.roster = [
       players.get_player(pid)
       for pid in (data.get('players') or [])
     ]
+#    all_players = Players()
 #    self.players = self._get_players()
-#
+
 #  def _get_players(self) -> List[Player]:
 #    print(self.players)
 #    return [Player(player) for player in self.players]
-
+#
 #  def _get_player(self, player_info: dict) -> Player:
 #    return Player(player_info)
-#
+
 #  def _get_round_pick_number(self, overall_pick: int) -> int:
 #    return ((overall_pick - 1) % 8) + 1
 
