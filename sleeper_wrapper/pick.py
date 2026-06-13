@@ -26,47 +26,25 @@ class Pick:
 #      Raw metadata of Player object
   """
   def __init__(self, data: dict, league_users: dict[int, User]):
+    self.pick_no = self._data.get('pick_no')
+    self.player_data = self._data.get('metadata')
+    self.player_id = self.player_data.get('player_id')
+    self.picked_by = self._data.get('picked_by')
     self._league_users = league_users
     self.__dict__.update(data) #expand all properties
-#    self.overall_pick = data.get("pick_no")
-#    self.round_pick_number = self._get_round_pick_number(self.overall_pick)
-#    self.round_number = data.get("round")
-#    self.roster_id = data.get("roster_id")
-##    self.team_name = self._get_team_name(self.roster_id)
-##    self.user_id = self._get_user_id(self.roster_id)
-#    self.player_id = data.get("player_id")
-#    self.draft_id = data.get("draft_id")
+    self.round_pick_number = self._get_round_pick_number()
     self.player = self._get_player()
     self.raw = data
     self.user = self._get_pick_user()
     self.team_name = self.user.team_name
+    self.round = self._data.get('round')
+
 
   def _get_player(self) -> Player:
-    return Player(self.metadata['player_id'], self.metadata)
-    #Player(player_info)
+    return Player(self.player_id, self.player_data)
 
-  def _get_round_pick_number(self, overall_pick: int) -> int:
-    return ((overall_pick - 1) % 8) + 1
+  def _get_round_pick_number(self) -> int:
+    return ((self.pick_no - 1) % 8) + 1
 
-#  def _get_team_name(self, roster_id: int) -> str:
-#    user_id = self.roster_id_to_user_id.get(int(roster_id))
-#    if user_id is None:
-#        return None
-#    return self.user_id_to_team_name.get(user_id)
-#roster_id_to_user_id = l.map_rosterid_to_ownerid(l.get_rosters())
-#  user_id_to_team_name = l.map_users_to_team_name(l.get_users())
-
-
-#  def get_specific_draft(self) -> dict:
-#    """Returns the draft's data."""
-#    return self._call(self._base_url)
-#
-#  def get_all_picks(self) -> list:
-#    """Returns all the picks in the specified draft."""
-#    return self._call("{}/{}".format(self._base_url,"picks"))
-#
-#  def get_traded_picks(self) -> list:
-#    """Returns all the traded picks in the specified draft."""
-#    return self._call("{}/{}".format(self._base_url,"traded_picks"))
   def _get_pick_user(self) -> User:
     return self._league_users.get(self.picked_by)
