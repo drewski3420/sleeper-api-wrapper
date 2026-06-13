@@ -5,26 +5,6 @@ from .player import Player
 from .user import User
 
 class Pick:
-  """The data associated with a pick in a Sleep draft.
-
-  Attributes:
-    overall_pick: int
-      Overall pick number
-    round_number: int
-      Pick's round number
-    round_pick_number: int
-      Pick Number within round
-    roster_id: int
-      Roster ID of picking team
-    team_name: str
-      Team Name of picking team
-    user_id: int
-      User ID of picking team
-    player_id: int
-      Sleeper ID of player
-#    metadata: Player
-#      Raw metadata of Player object
-  """
   def __init__(self, data: dict, league_users: dict[int, User]):
     self._data = data
     self.pick_no = self._data.get('pick_no')

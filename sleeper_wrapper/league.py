@@ -5,27 +5,10 @@ from .stats import Stats
 from .draft import Draft
 from .team import Team
 from .user import User
+#from .all_players import Players
 
 class League(BaseApi):
-  """The data associated with the given Sleeper league.
-
-  Can retrieve data for the league such as matchups, transactions, brackets,
-  drafts, scoreboards, and more. Some of these are simple calls to the 
-  Sleeper API while others add on a layer of data transformation or include
-  multiple calls.
-
-  Attributes:
-    league_id: Union[str, int]
-      The Sleeper ID for the league. May be provided as a string or int.
-  """
-
   def __init__(self, league_id: Union[str, int]) -> None:
-    """Initializes the instance based on league ID.
-
-    Args:
-      league_id: Union[str, int]
-        Defines the league ID for data retrieval.
-    """
     self.league_id = league_id
     self._base_url = "https://api.sleeper.app/v1/league/{}".format(self.league_id)
     self._data = self._get_data()

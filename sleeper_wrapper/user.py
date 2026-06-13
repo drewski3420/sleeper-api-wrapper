@@ -6,13 +6,6 @@ class User(BaseApi):
   """The data associated with a given Sleeper user."""
 
   def __init__(self, initial_user_input: Union[str, int]) -> None:
-    """Initializes the instance based on either username or user ID.
-
-    Args:
-      initial_user_input: Union[str, int]
-        The Sleeper user ID or username for the user. May be provided as a
-        string or int.
-    """
     self._base_url = "https://api.sleeper.app/v1/user"
     self._data = self._get_data(initial_user_input)
 #    self.__dict__.update(self.raw)
