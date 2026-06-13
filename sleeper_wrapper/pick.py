@@ -12,7 +12,6 @@ class Pick:
     self.player_id = self.player_data.get('player_id')
     self.picked_by = self._data.get('picked_by')
     self._league_users = league_users
-#    self.__dict__.update(data) #expand all properties
     self.round_pick_number = self._get_round_pick_number()
     self.player = self._get_player()
     self.user = self._get_pick_user()

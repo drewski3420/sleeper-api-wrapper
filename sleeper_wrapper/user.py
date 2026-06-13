@@ -8,10 +8,10 @@ class User(BaseApi):
   def __init__(self, initial_user_input: Union[str, int]) -> None:
     self._base_url = "https://api.sleeper.app/v1/user"
     self._data = self._get_data(initial_user_input)
-#    self.__dict__.update(self.raw)
     self.user_id = self._data.get('user_id')
     self.username = self._data.get('username')
     self.display_name = self._data.get('display_name')
+
   def __str__(self):
     return f"User: {self.username} User ID: {self.user_id} Display Name: {self.display_name}"
 

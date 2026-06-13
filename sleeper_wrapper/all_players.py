@@ -18,13 +18,10 @@ class AllPlayers(BaseApi):
                         , "players": {"fn":"players.json", "endpoint": f"https://api.sleeper.com/projections/{self._sport}/{self._season}?season_type=regular&order_by=adp_dynasty_ppr"}
                       }
     self.players = self._get_contents(type="players", skip_check=False )
-#    self.projections = self._get_contents(type="projections", skip_check=True)
 
     if AllPlayers._cache is None:
       AllPlayers._cache = self._get_contents("players", skip_check=False)
-
     self.players = AllPlayers._cache
-
 
   def _get_contents(self, type: str, skip_check: bool) -> Dict:
     fn = self._filenames[type]['fn']
@@ -66,16 +63,11 @@ class AllPlayers(BaseApi):
       if not player.get('player_id') in already_drafted_ids:
         player = Player(
           player_id=player.get('player_id'),
-          player_data={ **player.get("player"), "stats": player.get("stats")}        #player.get('player')
+          player_data={ **player.get("player"), "stats": player.get("stats")}
         )
-        #player = Player(player_id=player.get('player_id'), all_players_data=self.players)
         if player.position in position or position[0] == 'All':
           l.append(player)
           i += 1
         if i >= LIMIT:
           break
-#    print(f"Top Available {','.join(position)}")
-#    for p in l:
-#      print(f"Name: {p['first_name']} {p['last_name']} - Position: {p['position']} -  Team: {p['team']} - Exp: {p['years_exp']} - ADP: {p['adp_dynasty_std']}")
-#
     return l

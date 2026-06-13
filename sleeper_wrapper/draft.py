@@ -35,12 +35,9 @@ class Draft(BaseApi):
     counts = {}
 
     for p in self.picks:
-#      for team_name, pick in p.items():
-        #print(f"Round {pick.round} Pick {pick.round_pick_number}: {pick.player.full_name} ({pick.player.position}, Year: {pick.player.years_exp})")
-      roster_id = p.team_name #pick.roster_id
+      roster_id = p.team_name
       position = p.player.position
 
-      
       counts.setdefault(roster_id, {})
       counts[roster_id][position] = counts[roster_id].get(position, 0) + 1
 
@@ -55,9 +52,3 @@ class Draft(BaseApi):
 #      parts.extend(f"{counts[pos]} {pos}" for pos in other_positions)
 #
 #      return " / ".join(parts)
-#
-##  def _update_draft_order(self) -> list[tuple[int, int]]:
-##    return [
-##      (position, user_id)
-##      for user_id, position in sorted(self.draft_order.items(), key=lambda x: x[1])
-##    ]

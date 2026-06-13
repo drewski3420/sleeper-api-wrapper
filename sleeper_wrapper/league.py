@@ -5,7 +5,6 @@ from .stats import Stats
 from .draft import Draft
 from .team import Team
 from .user import User
-#from .all_players import Players
 
 class League(BaseApi):
   def __init__(self, league_id: Union[str, int]) -> None:
@@ -17,7 +16,6 @@ class League(BaseApi):
     self.num_teams = self._data.get('total_rosters')
     self.league_status = self._data.get('status')
     self.league_name = self._data.get('name')
-#    self.__dict__.update(self.raw)
     self.users = self._get_users()
     self.users_by_id = {user['user_id']: user for user in self.users}
     self.teams = self._get_teams()
