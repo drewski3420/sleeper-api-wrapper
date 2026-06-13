@@ -28,12 +28,13 @@ class League(BaseApi):
     """
     self.league_id = league_id
     self._base_url = "https://api.sleeper.app/v1/league/{}".format(self.league_id)
-    self.__dict__.update(self._league)
+    self._data = self._get_data()
     self.settings = self._data.get('settings')
     self.scoring_settings = self._data.get('scoring_settings')
     self.num_teams = self._data.get('total_rosters')
     self.league_status = self._data.get('status')
     self.league_name = self._data.get('name')
+#    self.__dict__.update(self.raw)
     self.users = self._get_users()
     self.users_by_id = {user['user_id']: user for user in self.users}
     self.teams = self._get_teams()

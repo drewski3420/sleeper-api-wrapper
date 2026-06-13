@@ -8,8 +8,8 @@ from .user import User
 
 class Team:
   def __init__(self, data: dict):
-    self.__dict__.update(data) #expand all properties
 #    all_players = Players()
+    self._data = data
     self.roster = None
     self.team_name = self._data['user']['metadata'].get('team_name') or self._data['user']['display_name']
     self.user = self._data.get('user')

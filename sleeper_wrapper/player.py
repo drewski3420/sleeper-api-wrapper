@@ -14,7 +14,6 @@ class Player(BaseApi):
       all_players_data: dict | None = None,
   ):
       self.player_id = player_id
-      self.__dict__.update(metadata)
       self._all_players_data = all_players_data
       self._player_data = player_data or self._get_metadata()
 

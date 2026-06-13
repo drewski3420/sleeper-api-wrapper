@@ -12,8 +12,7 @@ class Draft(BaseApi):
     self._base_url = f"https://api.sleeper.app/v1/draft/{self.draft_id}"
 
     self.picks = self._get_all_picks()
-    self.data = self._get_draft()
-    self.__dict__.update(self.data)
+    self._data = self._get_draft()
     self.last_pick_time = datetime.fromtimestamp(self._data.get('last_picked') / 1000)
     self.draft_start_time = datetime.fromtimestamp(self._data.get('start_time') / 1000)
     self.draft_type = self._data.get('type')
