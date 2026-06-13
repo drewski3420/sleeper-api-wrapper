@@ -35,76 +35,60 @@ class League(BaseApi):
     return [Draft(draft.get('draft_id'), self.teams_by_user_id) for draft in drafts]
 
   def _get_teams(self) -> list:
-#  def get_users(self) -> list:
-#    """Retrieves the league's users."""
-#    return self._call("{}/{}".format(self._base_url,"users"))
-
-  def get_matchups(self, week: Union[str, int]) -> list:
-    """Retrieves the league's matchups for the given week."""
-    return self._call("{}/{}/{}".format(self._base_url,"matchups", week))
-
-  def get_playoff_winners_bracket(self) -> list:
-    """Retrieves the winner's playoff bracket."""
-    return self._call("{}/{}".format(self._base_url,"winners_bracket"))
     teams_data = self._call("{}/{}".format(self._base_url,"rosters"))
 
-  def get_playoff_losers_bracket(self) -> list:
-    """Retrieves the loser's playoff bracket."""
-    return self._call("{}/{}".format(self._base_url,"losers_bracket"))
     teams = []
     for team in teams_data:
       user_info = self.users_by_id.get(team["owner_id"])
 
-  def get_transactions(self, week: Union[str, int]) -> list:
-    """Retrieves all of a league's transactions for the given week."""
-    return self._call("{}/{}/{}".format(self._base_url,"transactions", week))
       if user_info:
         team['user'] = user_info
       else:
         team['user'] = None
 
-  def get_trades(self, week: Union[str, int]) -> list:
-    """Retrieves the league's trades for the given week."""
-    transactions = self.get_transactions(week)
-    return [t for t in transactions if t["type"] == "trade"]
       teams.append(Team(team))
 
-  def get_waivers(self, week: Union[str, int]) -> list:
-    """Retrieves the league's waiver transactions for the given week."""
-    transactions = self.get_transactions(week)
-    return [t for t in transactions if t["type"] == "waiver"]
     return teams
 
   def _get_users(self) -> list:
     users = self._call("{}/{}".format(self._base_url,"users"))
-#    return [User(user["user_id"]) for user in users]
     return users
+
+#  def get_matchups(self, week: Union[str, int]) -> list:
+#    """Retrieves the league's matchups for the given week."""
+#    return self._call("{}/{}/{}".format(self._base_url,"matchups", week))
+#
+#  def get_playoff_winners_bracket(self) -> list:
+#    """Retrieves the winner's playoff bracket."""
+#    return self._call("{}/{}".format(self._base_url,"winners_bracket"))
+#
+#  def get_playoff_losers_bracket(self) -> list:
+#    """Retrieves the loser's playoff bracket."""
+#    return self._call("{}/{}".format(self._base_url,"losers_bracket"))
+#
+#  def get_transactions(self, week: Union[str, int]) -> list:
+#    """Retrieves all of a league's transactions for the given week."""
+#    return self._call("{}/{}/{}".format(self._base_url,"transactions", week))
+#
+#  def get_trades(self, week: Union[str, int]) -> list:
+#    """Retrieves the league's trades for the given week."""
+#    transactions = self.get_transactions(week)
+#    return [t for t in transactions if t["type"] == "trade"]
+#
+#  def get_waivers(self, week: Union[str, int]) -> list:
+#    """Retrieves the league's waiver transactions for the given week."""
+#    transactions = self.get_transactions(week)
+#    return [t for t in transactions if t["type"] == "waiver"]
+#
+#  def get_free_agents(self, week: Union[str, int]) -> list:
+#    """Retrieves the league's free agent transactions for the given week."""
+#    transactions = self.get_transactions(week)
+#    return [t for t in transactions if t["type"] == "free_agent"]
 
 #  def get_traded_picks(self) -> list:
 #    """Retrieves the league's traded draft picks."""
 #    return self._call("{}/{}".format(self._base_url,"traded_picks"))
 
-#  def map_users_to_team_name(self, users: list) -> dict:
-#    """Creates a mapping from user ID to team name.
-#    
-#    Args:
-#      users: list
-#        List of user IDs for the league.
-#
-#    Returns:
-#      A dict mapping the user ID to team name for each user / team
-#      combination in the league.
-#    """
-#    users_dict = {}
-#    
-#    # Maps the user_id to team name for easy lookup
-#    for user in users:
-#      try:
-#        users_dict[user["user_id"]] = user["metadata"]["team_name"]
-#      except:
-#        users_dict[user["user_id"]] = user["display_name"]
-#    return users_dict
-#
 #  def get_standings(self, rosters: list, users: list) -> dict:
 #    """Creates standings based on the team's wins, losses, and ties.
 #
@@ -140,25 +124,6 @@ class League(BaseApi):
 #    
 #    return clean_standings_list
 
-#  def map_rosterid_to_ownerid(self, rosters: list) -> dict:
-#    """Creates a mapping from roster ID to owner ID.
-#    
-#    Args:
-#      rosters: list
-#        List of rosters for the league.
-#
-#    Returns:
-#      A dict mapping the roster ID to owner ID for each roster / owner
-#      combination in the league.
-#    """
-#    result_dict = {}
-#    for roster in rosters:
-#      roster_id = roster["roster_id"]
-#      owner_id = roster["owner_id"]
-#      result_dict[roster_id] = owner_id
-#
-#    return result_dict
-#
 #  def get_scoreboards(self, rosters: list, matchups: list, users: list, score_type: str, season: Union[str, int], week: Union[str, int]) -> Union[dict, None]:
 #    """Returns the team names and scores from each matchup.
 #
