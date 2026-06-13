@@ -28,23 +28,26 @@ class League(BaseApi):
     """
     self.league_id = league_id
     self._base_url = "https://api.sleeper.app/v1/league/{}".format(self.league_id)
-    self._league = self._call(self._base_url)
     self.__dict__.update(self._league)
+    self.settings = self._data.get('settings')
+    self.scoring_settings = self._data.get('scoring_settings')
+    self.num_teams = self._data.get('total_rosters')
+    self.league_status = self._data.get('status')
+    self.league_name = self._data.get('name')
     self.users = self._get_users()
     self.users_by_id = {user['user_id']: user for user in self.users}
     self.teams = self._get_teams()
     self.teams_by_user_id ={team.user['user_id']: team for team in self.teams}
     self.drafts = self._get_drafts()
 
+  def _get_data(self) -> dict:
+    return self._call(self._base_url)
 
   def _get_drafts(self) -> list:
     drafts = self._call("{}/{}".format(self._base_url, "drafts"))
     return [Draft(draft.get('draft_id'), self.teams_by_user_id) for draft in drafts]
 
   def _get_teams(self) -> list:
-    teams = self._call("{}/{}".format(self._base_url,"rosters"))
-    return [Team(team) for team in teams]
-
 #  def get_users(self) -> list:
 #    """Retrieves the league's users."""
 #    return self._call("{}/{}".format(self._base_url,"users"))
@@ -56,6 +59,7 @@ class League(BaseApi):
   def get_playoff_winners_bracket(self) -> list:
     """Retrieves the winner's playoff bracket."""
     return self._call("{}/{}".format(self._base_url,"winners_bracket"))
+    teams_data = self._call("{}/{}".format(self._base_url,"rosters"))
 
   def get_playoff_losers_bracket(self) -> list:
     """Retrieves the loser's playoff bracket."""
