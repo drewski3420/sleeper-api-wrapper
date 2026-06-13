@@ -16,6 +16,8 @@ class Draft(BaseApi):
     self.__dict__.update(self.data)
     self.last_pick_time = datetime.fromtimestamp(self._data.get('last_picked') / 1000)
     self.draft_start_time = datetime.fromtimestamp(self._data.get('start_time') / 1000)
+    self.draft_type = self._data.get('type')
+    self.scoring_type = self._data.get('metadata').get('scoring_type')
 
   def _get_draft(self) -> dict:
     return self._call(self._base_url)
