@@ -13,6 +13,9 @@ class Team:
     self.roster = None
     self.team_name = self._data['user']['metadata'].get('team_name') or self._data['user']['display_name']
     self.user = self._data.get('user')
+
+  def __str__(self):
+    return f"Team {self.team_name} owned by {self.user['display_name']}"
 #    self.owner = data.get('user')
 #    self.players = self._get_players()
 

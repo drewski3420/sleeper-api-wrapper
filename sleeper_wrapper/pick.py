@@ -39,6 +39,8 @@ class Pick:
     self.team_name = self.user.team_name
     self.round = self._data.get('round')
 
+  def __str__(self):
+    return f"Round: {self.round} Pick: {self.round_pick_number} (Overall {self.pick_no}) by {self.team_name}"
 
   def _get_player(self) -> Player:
     return Player(self.player_id, self.player_data)

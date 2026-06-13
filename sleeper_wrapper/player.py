@@ -23,6 +23,9 @@ class Player(BaseApi):
       self.position = self._player_data.get('position')
       self.stats = self._player_data.get('stats')
 
+  def __str__(self):
+    return f"{self.position} {self.full_name}"
+
   def _get_metadata(self) -> Dict:
     if self._all_players_data:
       return self._all_players_data[self.player_id]

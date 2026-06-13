@@ -41,6 +41,9 @@ class League(BaseApi):
     self.teams_by_user_id ={team.user['user_id']: team for team in self.teams}
     self.drafts = self._get_drafts()
 
+  def __str__(self):
+    return f"{self.num_teams} Team League: {self.league_name} (ID {self.league_id})"
+
   def _get_data(self) -> dict:
     return self._call(self._base_url)
 
