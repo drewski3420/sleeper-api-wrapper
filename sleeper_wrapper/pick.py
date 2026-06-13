@@ -6,12 +6,12 @@ from .user import User
 
 class Pick:
   def __init__(self, data: dict, league_users: dict[int, User]):
+    self._league_users = league_users
     self._data = data
     self.pick_no = self._data.get('pick_no')
     self.player_data = self._data.get('metadata')
     self.player_id = self.player_data.get('player_id')
     self.picked_by = self._data.get('picked_by')
-    self._league_users = league_users
     self.round_pick_number = self._get_round_pick_number()
     self.player = self._get_player()
     self.user = self._get_pick_user()
@@ -25,7 +25,7 @@ class Pick:
     return Player(self.player_id, self.player_data)
 
   def _get_round_pick_number(self) -> int:
-    return ((self.pick_no - 1) % 8) + 1
+    return ((self.pick_no - 1) % len(self._league_users)) + 1
 
   def _get_pick_user(self) -> User:
     return self._league_users.get(self.picked_by)
