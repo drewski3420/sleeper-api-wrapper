@@ -4,6 +4,7 @@ from .base_api import BaseApi
 from .stats import Stats
 from .draft import Draft
 from .team import Team
+from .user import User
 
 class League(BaseApi):
   """The data associated with the given Sleeper league.
@@ -29,7 +30,10 @@ class League(BaseApi):
     self._base_url = "https://api.sleeper.app/v1/league/{}".format(self.league_id)
     self._league = self._call(self._base_url)
     self.__dict__.update(self._league)
+    self.users = self._get_users()
+    self.users_by_id = {user['user_id']: user for user in self.users}
     self.teams = self._get_teams()
+    self.teams_by_user_id ={team.user['user_id']: team for team in self.teams}
     self.drafts = self._get_drafts()
 
 
@@ -56,25 +60,34 @@ class League(BaseApi):
   def get_playoff_losers_bracket(self) -> list:
     """Retrieves the loser's playoff bracket."""
     return self._call("{}/{}".format(self._base_url,"losers_bracket"))
+    teams = []
+    for team in teams_data:
+      user_info = self.users_by_id.get(team["owner_id"])
 
   def get_transactions(self, week: Union[str, int]) -> list:
     """Retrieves all of a league's transactions for the given week."""
     return self._call("{}/{}/{}".format(self._base_url,"transactions", week))
+      if user_info:
+        team['user'] = user_info
+      else:
+        team['user'] = None
 
   def get_trades(self, week: Union[str, int]) -> list:
     """Retrieves the league's trades for the given week."""
     transactions = self.get_transactions(week)
     return [t for t in transactions if t["type"] == "trade"]
+      teams.append(Team(team))
 
   def get_waivers(self, week: Union[str, int]) -> list:
     """Retrieves the league's waiver transactions for the given week."""
     transactions = self.get_transactions(week)
     return [t for t in transactions if t["type"] == "waiver"]
+    return teams
 
-  def get_free_agents(self, week: Union[str, int]) -> list:
-    """Retrieves the league's free agent transactions for the given week."""
-    transactions = self.get_transactions(week)
-    return [t for t in transactions if t["type"] == "free_agent"]
+  def _get_users(self) -> list:
+    users = self._call("{}/{}".format(self._base_url,"users"))
+#    return [User(user["user_id"]) for user in users]
+    return users
 
 #  def get_traded_picks(self) -> list:
 #    """Retrieves the league's traded draft picks."""

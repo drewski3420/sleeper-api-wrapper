@@ -2,6 +2,7 @@ from typing import Union
 
 from .base_api import BaseApi
 from .player import Player
+from .user import User
 
 class Pick:
   """The data associated with a pick in a Sleep draft.
@@ -24,13 +25,8 @@ class Pick:
 #    metadata: Player
 #      Raw metadata of Player object
   """
-  def __init__(self, data):
-    """Initializes the Pick based on JSON data.
-
-    Args:
-      data: Dict
-          The raw data of the pick from Drafts class.
-    """
+  def __init__(self, data: dict, league_users: dict[int, User]):
+    self._league_users = league_users
     self.__dict__.update(data) #expand all properties
 #    self.overall_pick = data.get("pick_no")
 #    self.round_pick_number = self._get_round_pick_number(self.overall_pick)
@@ -42,6 +38,8 @@ class Pick:
 #    self.draft_id = data.get("draft_id")
     self.player = self._get_player()
     self.raw = data
+    self.user = self._get_pick_user()
+    self.team_name = self.user.team_name
 
   def _get_player(self) -> Player:
     return Player(self.metadata['player_id'], self.metadata)
@@ -70,3 +68,5 @@ class Pick:
 #  def get_traded_picks(self) -> list:
 #    """Returns all the traded picks in the specified draft."""
 #    return self._call("{}/{}".format(self._base_url,"traded_picks"))
+  def _get_pick_user(self) -> User:
+    return self._league_users.get(self.picked_by)
