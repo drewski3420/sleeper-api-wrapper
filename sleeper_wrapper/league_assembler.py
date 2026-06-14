@@ -7,6 +7,7 @@ from .draft import Draft
 from .matchup import Matchup
 from .team import Team
 from .transaction import FreeAgent, Trade, Transaction, Waiver
+from .user import User
 
 
 class LeagueAssembler:
@@ -15,10 +16,10 @@ class LeagueAssembler:
 
   def assemble_league(self, league) -> None:
     league.users = self._get_users(league.league_id)
-    league.users_by_id = {user['user_id']: user for user in league.users}
+    league.users_by_id = {user.user_id: user for user in league.users}
 
     league.teams = self._get_teams(league.league_id, league.users_by_id)
-    league.teams_by_user_id = {team.user['user_id']: team for team in league.teams if team.user}
+    league.teams_by_user_id = {team.user.user_id: team for team in league.teams if team.user}
     league.teams_by_roster_id = {team.roster_id: team for team in league.teams}
 
     league.drafts = self._get_drafts(league.league_id, league.teams_by_user_id)
@@ -86,21 +87,16 @@ class LeagueAssembler:
       league.all_players = AllPlayers(season=league.season, sport=league.sport)
     return league.all_players
 
-  def _get_users(self, league_id) -> list:
-    return self.client.get_league_users(league_id)
+  def _get_users(self, league_id) -> list[User]:
+    users_data = self.client.get_league_users(league_id)
+    return [User(user_data.get('user_id'), user_data=user_data) for user_data in users_data]
 
   def _get_teams(self, league_id, users_by_id) -> list[Team]:
     teams_data = self.client.get_league_rosters(league_id)
     teams = []
 
     for team in teams_data:
-      user_info = users_by_id.get(team["owner_id"])
-
-      if user_info:
-        team['user'] = user_info
-      else:
-        team['user'] = None
-
+      team['user'] = users_by_id.get(team.get("owner_id"))
       teams.append(Team(team))
 
     return teams

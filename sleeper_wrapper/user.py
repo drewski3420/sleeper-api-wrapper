@@ -12,11 +12,12 @@ if TYPE_CHECKING:
 class User(BaseApi):
   """The data associated with a given Sleeper user."""
 
-  def __init__(self, initial_user_input: Union[str, int]) -> None:
-    self._data = self.get_client().get_user(initial_user_input)
+  def __init__(self, initial_user_input: Union[str, int], user_data: dict | None = None) -> None:
+    self._data = user_data or self.get_client().get_user(initial_user_input)
     self.user_id = self._data.get('user_id')
     self.username = self._data.get('username')
     self.display_name = self._data.get('display_name')
+    self.metadata = self._data.get('metadata') or {}
 
   def __str__(self):
     return f"User: {self.username} User ID: {self.user_id} Display Name: {self.display_name}"

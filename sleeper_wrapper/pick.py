@@ -1,12 +1,14 @@
-from typing import Union
+from typing import TYPE_CHECKING
 
-from .base_api import BaseApi
 from .player import Player
-from .user import User
+
+if TYPE_CHECKING:
+  from .team import Team
+
 
 class Pick:
-  def __init__(self, data: dict, league_users: dict[int, User]):
-    self._league_users = league_users
+  def __init__(self, data: dict, league_teams_by_user_id: dict[int, "Team"]):
+    self._league_teams_by_user_id = league_teams_by_user_id
     self._data = data
     self.pick_no = self._data.get('pick_no')
     self.player_data = self._data.get('metadata')
@@ -14,8 +16,9 @@ class Pick:
     self.picked_by = self._data.get('picked_by')
     self.round_pick_number = self._get_round_pick_number()
     self.player = self._get_player()
-    self.user = self._get_pick_user()
-    self.team_name = self.user.team_name
+    self.team = self._get_pick_team()
+    self.user = self.team.user if self.team else None
+    self.team_name = self.team.team_name if self.team else str(self.picked_by)
     self.round = self._data.get('round')
 
   def __str__(self):
@@ -25,7 +28,7 @@ class Pick:
     return Player(self.player_id, self.player_data)
 
   def _get_round_pick_number(self) -> int:
-    return ((self.pick_no - 1) % len(self._league_users)) + 1
+    return ((self.pick_no - 1) % len(self._league_teams_by_user_id)) + 1
 
-  def _get_pick_user(self) -> User:
-    return self._league_users.get(self.picked_by)
+  def _get_pick_team(self) -> "Team | None":
+    return self._league_teams_by_user_id.get(self.picked_by)

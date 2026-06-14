@@ -1,15 +1,17 @@
 from datetime import datetime
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
 from .base_api import BaseApi
 from .pick import Pick
-from .user import User
+
+if TYPE_CHECKING:
+  from .team import Team
 
 
 class Draft(BaseApi):
-  def __init__(self, draft_id: Union[str, int], league_users: dict[int, User]) -> None:
+  def __init__(self, draft_id: Union[str, int], league_teams_by_user_id: dict[int, "Team"]) -> None:
     self.draft_id = draft_id
-    self._league_users = league_users
+    self._league_teams_by_user_id = league_teams_by_user_id
 
     self.picks = self._get_all_picks()
     self._data = self._get_draft()
@@ -26,11 +28,11 @@ class Draft(BaseApi):
 
   def _get_all_picks(self) -> list[Pick]:
     picks = self.get_client().get_draft_picks(self.draft_id)
-    return [Pick(pick, self._league_users) for pick in picks]
+    return [Pick(pick, self._league_teams_by_user_id) for pick in picks]
 
   def _get_traded_picks(self) -> list[Pick]:
     picks = self.get_client().get_draft_traded_picks(self.draft_id)
-    return [Pick(pick, self._league_users) for pick in picks]
+    return [Pick(pick, self._league_teams_by_user_id) for pick in picks]
 
   def get_roster_counts(self) -> dict[str, dict[str, int]]:
     counts = {}
