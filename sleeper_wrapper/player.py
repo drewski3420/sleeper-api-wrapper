@@ -1,10 +1,4 @@
-import logging
-
-from .base_api import BaseApi
-
-logger = logging.getLogger(__name__)
-
-class Player(BaseApi):
+class Player:
   def __init__(
       self,
       player_id: str,
