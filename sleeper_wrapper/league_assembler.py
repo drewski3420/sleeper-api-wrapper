@@ -27,7 +27,7 @@ class LeagueAssembler:
     league.is_current_season = 1 if league.sport_state['league_season'] == league.season else 0
 
   def assemble_week_matchups(self, league, week: int) -> list[Matchup]:
-    league.all_players = AllPlayers(season=league.season, sport=league.sport)
+    all_players = self._get_all_players(league)
     matchups = defaultdict(list)
     results = []
 
@@ -42,7 +42,7 @@ class LeagueAssembler:
       for team_entry in matchup.teams:
         team_entry.team_obj = league.teams_by_roster_id[team_entry.roster_id]
         for player in team_entry.players_with_points:
-          player['player'] = league.all_players.get_player(player['player_id'])
+          player['player'] = all_players.get_player(player['player_id'])
       results.append(matchup)
 
     return results
@@ -50,6 +50,7 @@ class LeagueAssembler:
   def assemble_transactions(self, league, week: int) -> list[Transaction]:
     transactions = []
     transactions_data = self.client.get_league_transactions(league.league_id, week)
+    all_players = self._get_all_players(league)
 
     for item in transactions_data:
       item_type = item.get("type")
@@ -63,9 +64,27 @@ class LeagueAssembler:
       else:
         transaction = Transaction(item)
 
+      self._enrich_transaction(transaction, league, all_players)
       transactions.append(transaction)
 
     return transactions
+
+  def _enrich_transaction(self, transaction: Transaction, league, all_players: AllPlayers) -> None:
+    for transaction_team in transaction.teams:
+      team = league.teams_by_roster_id.get(transaction_team.roster_id)
+      transaction_team.team = team
+      transaction_team.user = team.user if team else None
+
+      for transaction_player in transaction_team.players_added:
+        transaction_player.player = all_players.get_player(transaction_player.player_id)
+
+      for transaction_player in transaction_team.players_dropped:
+        transaction_player.player = all_players.get_player(transaction_player.player_id)
+
+  def _get_all_players(self, league) -> AllPlayers:
+    if league.all_players is None:
+      league.all_players = AllPlayers(season=league.season, sport=league.sport)
+    return league.all_players
 
   def _get_users(self, league_id) -> list:
     return self.client.get_league_users(league_id)

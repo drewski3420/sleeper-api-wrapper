@@ -24,6 +24,7 @@ from .player import Player
 class TransactionPlayer:
   def __init__(self, player_id: int):
     self.player_id = player_id
+    self.player = None
 
 class TransactionPick:
   def __init__(self, data: dict):
