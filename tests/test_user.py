@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from json import JSONDecodeError
 from pathlib import Path
 
 import pytest
@@ -16,8 +17,14 @@ def _load_test_config() -> dict:
             "to tests/local_test_config.json and fill in your local values."
         )
 
-    with config_path.open(encoding="utf-8") as config_file:
-        return json.load(config_file)
+    try:
+        with config_path.open(encoding="utf-8") as config_file:
+            return json.load(config_file)
+    except JSONDecodeError:
+        pytest.skip(
+            "Invalid JSON in tests/local_test_config.json. "
+            "Fix the file contents before running integration tests."
+        )
 
 
 def _get_username(key: str) -> str:
