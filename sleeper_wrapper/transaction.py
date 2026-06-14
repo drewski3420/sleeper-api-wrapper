@@ -83,18 +83,19 @@ class Waiver(Transaction):
   def __init__(self, data: dict):
     super().__init__(data)
 
-    self.added_player_ids = data.get("adds").keys() or []
-    self.dropped_player_ids = data.get("drops").keys() or []
+    self.added_player_ids = list((self.adds or {}).keys())
+    self.dropped_player_ids = list((self.drops or {}).keys())
     self.added_players = []
     self.dropped_players = []
 
-    self.waiver_bid = (int(data.get("settings", {}).get("waiver_bid")) if data.get("settings") else 0)
+    self.waiver_bid = (int(data.get("settings", {}).get("waiver_bid")) if data.get("settings") else None)
+    self.waiver_seq = (int(data.get("settings", {}).get("seq")) if data.get("settings") else None)
 
   def __str__(self):
     return (
       f"Waiver("
       f"bid={self.waiver_bid}, "
-      f"adds={len(self.adds)}, "
-      f"drops={len(self.drops)}"
+      f"adds={len(self.added_player_ids)}, "
+      f"drops={len(self.dropped_player_ids)}"
       f")"
     )
