@@ -20,9 +20,9 @@ def _load_test_config() -> dict:
     try:
         with config_path.open(encoding="utf-8") as config_file:
             return json.load(config_file)
-    except JSONDecodeError:
-        pytest.skip(
-            "Invalid JSON in tests/local_test_config.json. "
+    except JSONDecodeError as exc:
+        pytest.fail(
+            f"Invalid JSON in tests/local_test_config.json: {exc}. "
             "Fix the file contents before running integration tests."
         )
 
