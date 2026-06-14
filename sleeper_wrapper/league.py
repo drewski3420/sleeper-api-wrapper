@@ -9,6 +9,7 @@ from .user import User
 from .matchup import Matchup
 from .all_players import AllPlayers
 from .player import Player
+from .transaction import Transaction, Waiver, FreeAgent, Trade
 
 class League(BaseApi):
   def __init__(self, league_id: Union[str, int]) -> None:
@@ -32,6 +33,7 @@ class League(BaseApi):
     self.teams_by_roster_id ={team.roster_id: team for team in self.teams}
     self.drafts = self._get_drafts()
     self.all_players = None
+    self.transactions = {}
 
   def __str__(self):
     return f"{self.num_teams} Team League: {self.league_name} (ID {self.league_id})"
@@ -87,6 +89,41 @@ class League(BaseApi):
       r.append(matchup)
     return r
 
+  def get_transactions(self, week: int, transaction_type: str = "All") -> list[Transaction]:
+    print(f"Getting transactions for Week {week}, current len is {sum(len(l) for l in self.transactions.values())}")
+
+    if week not in self.transactions.keys():
+      self.transactions[week] = []
+      transactions_data = self._call("{}/{}/{}".format(self._base_url,"transactions", week))
+
+      for item in transactions_data:
+        item_type = item.get("type")
+
+        if item_type == "trade":
+          transaction = Trade(item)
+
+        elif item_type == "waiver":
+          transaction = Waiver(item)
+
+        elif item_type == "free_agent":
+          transaction = FreeAgent(item)
+
+        else:
+          transaction = Transaction(item)
+
+        self.transactions[week].append(transaction)
+
+    return [t for t in self.transactions if transaction_type in [t.transaction_type,"All"]]
+
+  def get_trades(self, week: int) -> list:
+    return self.get_transactions(week, "trade")
+
+  def get_waivers(self, week: int) -> list:
+    return self.get_transactions(week, "waiver")
+
+  def get_free_agents(self, week: int) -> list:
+    return self.get_transactions(week, "free_agent")
+
 #
 #  def get_playoff_winners_bracket(self) -> list:
 #    """Retrieves the winner's playoff bracket."""
@@ -96,24 +133,6 @@ class League(BaseApi):
 #    """Retrieves the loser's playoff bracket."""
 #    return self._call("{}/{}".format(self._base_url,"losers_bracket"))
 #
-#  def get_transactions(self, week: Union[str, int]) -> list:
-#    """Retrieves all of a league's transactions for the given week."""
-#    return self._call("{}/{}/{}".format(self._base_url,"transactions", week))
-#
-#  def get_trades(self, week: Union[str, int]) -> list:
-#    """Retrieves the league's trades for the given week."""
-#    transactions = self.get_transactions(week)
-#    return [t for t in transactions if t["type"] == "trade"]
-#
-#  def get_waivers(self, week: Union[str, int]) -> list:
-#    """Retrieves the league's waiver transactions for the given week."""
-#    transactions = self.get_transactions(week)
-#    return [t for t in transactions if t["type"] == "waiver"]
-#
-#  def get_free_agents(self, week: Union[str, int]) -> list:
-#    """Retrieves the league's free agent transactions for the given week."""
-#    transactions = self.get_transactions(week)
-#    return [t for t in transactions if t["type"] == "free_agent"]
 
 #  def get_traded_picks(self) -> list:
 #    """Retrieves the league's traded draft picks."""
