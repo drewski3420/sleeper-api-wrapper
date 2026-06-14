@@ -106,8 +106,7 @@ venv.bak/
 # Poetry
 poetry.lock
 
-#Mine
-*.json
+# Mine
 index.py
 .aider*
 
