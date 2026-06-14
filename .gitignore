@@ -110,3 +110,6 @@ poetry.lock
 *.json
 index.py
 .aider*
+
+# Local test config
+tests/local_test_config.json
