@@ -6,5 +6,4 @@ from .league import League
 from .league_assembler import LeagueAssembler
 from .matchup import Matchup
 from .player import Player
-from .stats import Stats
 from .user import User
