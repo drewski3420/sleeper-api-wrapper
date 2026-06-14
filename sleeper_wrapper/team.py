@@ -1,16 +1,13 @@
-
 from typing import Union
 
 from .base_api import BaseApi
 from .all_players import AllPlayers
 from .user import User
-#from .player import Player
 
 class Team:
   def __init__(self, data: dict):
-#    all_players = Players()
     self._data = data
-    self.roster = None
+    self.roster_id = self._data.get('roster_id')
     self.team_name = self._data['user']['metadata'].get('team_name') or self._data['user']['display_name']
     self.user = self._data.get('user')
 

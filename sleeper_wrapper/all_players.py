@@ -33,18 +33,19 @@ class AllPlayers(BaseApi):
     url = self._filenames[type]['endpoint']
     with open(fn, 'w') as f:
       data = self._call(url)
-      f.write(json.dumps(data))
+      f.write(json.dumps(data, indent=2))
 
-#  def get_player(self, player_id: str | int) -> Player:
-#    player_id = str(player_id)
-#
-#    metadata = self.players.get(player_id)
-#
-#    if metadata is None:
-#      logger.warning(f"Player {player_id} not found")
-#      return Player(player_id)
-#
-#    return Player(player_id, metadata)
+  def get_player(self, player_id: str | int) -> Player:
+    player_id = str(player_id)
+
+    metadata = next(p for p in self.players if p["player_id"] == player_id)
+    #self.players.get(player_id)
+
+    if metadata is None:
+      logger.warning(f"Player {player_id} not found")
+      return Player(player_id)
+
+    return Player(player_id, metadata)
 
   def get_top_available(self, already_drafted_ids: List[int], sort_by: str, position: List[str] = ["All"]) -> List[dict]:
     LIMIT = 40
