@@ -35,15 +35,10 @@ class AllPlayers(BaseApi):
       data = self._call(url)
       f.write(json.dumps(data, indent=2))
 
-  def get_player(self, player_id: str | int) -> Player:
+  def get_player(self, player_id: int) -> Player:
     player_id = str(player_id)
 
     metadata = next(p for p in self.players if p["player_id"] == player_id)
-    #self.players.get(player_id)
-
-    if metadata is None:
-      logger.warning(f"Player {player_id} not found")
-      return Player(player_id)
 
     return Player(player_id, metadata)
 

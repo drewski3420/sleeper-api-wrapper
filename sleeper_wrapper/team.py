@@ -14,15 +14,3 @@ class Team:
   def __str__(self):
     return f"Team {self.team_name} owned by {self.user['display_name']}"
 
-#  def _get_players(self) -> List[Player]:
-#    return [Player(player) for player in self.players]
-#
-#  def _get_player(self, player_info: dict) -> Player:
-#    return Player(player_info)
-
-#  def get_roster(self) -> List[Player]:
-#    return [
-#      self.players.get_player(pid)
-#      for pid in (data.get('players') or [])
-#    ]
-
