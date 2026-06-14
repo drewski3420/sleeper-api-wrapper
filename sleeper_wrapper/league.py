@@ -15,8 +15,13 @@ class League(BaseApi):
     self.league_id = league_id
     self._base_url = "https://api.sleeper.app/v1/league/{}".format(self.league_id)
     self._data = self._get_data()
+    self.season = self._data.get('season')
+    self.sport = self._data.get('sport')
     self.settings = self._data.get('settings')
     self.scoring_settings = self._data.get('scoring_settings')
+    self.first_week = self.settings.get('start_week')
+    self.most_recent_week = self.settings.get('last_scored_leg')
+    self.playoff_start = self.settings.get('playoff_week_start')
     self.num_teams = self._data.get('total_rosters')
     self.league_status = self._data.get('status')
     self.league_name = self._data.get('name')
@@ -24,7 +29,9 @@ class League(BaseApi):
     self.users_by_id = {user['user_id']: user for user in self.users}
     self.teams = self._get_teams()
     self.teams_by_user_id ={team.user['user_id']: team for team in self.teams}
+    self.teams_by_roster_id ={team.roster_id: team for team in self.teams}
     self.drafts = self._get_drafts()
+    self.all_players = None
 
   def __str__(self):
     return f"{self.num_teams} Team League: {self.league_name} (ID {self.league_id})"
