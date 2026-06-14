@@ -16,7 +16,7 @@ class Draft(BaseApi):
       users_by_id: dict[int, "User"],
       teams_by_user_id: dict[int, "Team"],
   ) -> None:
-    self.draft_id = draft_id
+    self.draft_id = int(draft_id)
     self._users_by_id = users_by_id
     self._teams_by_user_id = teams_by_user_id
 
@@ -46,7 +46,7 @@ class Draft(BaseApi):
     picks = self.get_client().get_draft_traded_picks(self.draft_id)
     return [Pick(pick, self._users_by_id, self._teams_by_user_id) for pick in picks]
 
-  def get_roster_counts(self) -> dict[str, dict[str, int]]:
+  def get_roster_counts(self) -> dict[str | None, dict[str | None, int]]:
     counts = {}
 
     for p in self.picks:

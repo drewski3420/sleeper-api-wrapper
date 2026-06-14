@@ -10,17 +10,18 @@ if TYPE_CHECKING:
   from .matchup import Matchup
   from .team import Team
   from .transaction import Transaction
+  from .user import User
 
 
 class League(BaseApi):
   def __init__(self, league_id: int) -> None:
-    self.league_id = league_id
+    self.league_id = int(league_id)
     self._data = self._get_data()
 
     self.season = self._data.get('season')
     self.sport = self._data.get('sport')
-    self.settings = self._data.get('settings')
-    self.scoring_settings = self._data.get('scoring_settings')
+    self.settings = self._data.get('settings') or {}
+    self.scoring_settings = self._data.get('scoring_settings') or {}
     self.first_week = self.settings.get('start_week')
     self.most_recent_week = self.settings.get('last_scored_leg')
     self.playoff_start = self.settings.get('playoff_week_start')
@@ -28,11 +29,11 @@ class League(BaseApi):
     self.league_status = self._data.get('status')
     self.league_name = self._data.get('name')
 
-    self.users = []
-    self.users_by_id = {}
-    self.teams = []
-    self.teams_by_user_id = {}
-    self.teams_by_roster_id = {}
+    self.users: list["User"] = []
+    self.users_by_id: dict[int, "User"] = {}
+    self.teams: list["Team"] = []
+    self.teams_by_user_id: dict[int, "Team"] = {}
+    self.teams_by_roster_id: dict[int, "Team"] = {}
     self.drafts: list["Draft"] = []
     self.all_players = None
     self.sport_state = {}
@@ -51,6 +52,9 @@ class League(BaseApi):
 
   def get_results(self) -> dict[int, list["Matchup"]]:
     r = defaultdict()
+    if self.first_week is None or self.most_recent_week is None:
+      return r
+
     for week in range(self.first_week, self.most_recent_week + 1):
       r[week] = self.get_week_matchups(week)
     return r

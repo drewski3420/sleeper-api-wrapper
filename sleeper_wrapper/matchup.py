@@ -13,7 +13,7 @@ from typing import List
 class TeamEntry:
   def __init__(self, data: dict):
     self._data = data
-    self.roster_id = self._data["roster_id"]
+    self.roster_id = int(self._data["roster_id"])
     self.points = self._data["points"]
     self.players_with_points = self._get_player_points()
     self.starter_points = sum(d["points"] for d in self.players_with_points if d["is_starter"] == 1)
@@ -22,8 +22,8 @@ class TeamEntry:
     self.team_obj = None
     
   def _get_player_points(self) -> List:
-    players_points = self._data["players_points"]
-    starters = self._data["starters"]
+    players_points = self._data.get("players_points") or {}
+    starters = self._data.get("starters") or []
     r = []
     for player_id, points in players_points.items():
       p = {}
@@ -41,7 +41,7 @@ class TeamEntry:
 class Matchup:
   def __init__(self, matchup_id: int, data: List):
     self._data = data
-    self.matchup_id = matchup_id
+    self.matchup_id = int(matchup_id)
     self.teams = [TeamEntry(e) for e in data]
     self.winning_roster_id = None
     self.losing_roster_id = None
@@ -50,6 +50,12 @@ class Matchup:
     self._determine_outcome()
 
   def _determine_outcome(self) -> None:
+    if len(self.teams) < 2:
+      if len(self.teams) == 1:
+        self.winning_roster_id = self.teams[0].roster_id
+        self.winning_team = self.teams[0]
+      return
+
     t1 = self.teams[0]
     t2 = self.teams[1]
     if t1.points > t2.points:
@@ -64,4 +70,21 @@ class Matchup:
       self.losing_team = t1
 
   def __str__(self):
-    return f"Matchup Number: {str(self.matchup_id)} - " + (" def. ".join([f"{t.team_obj.team_name} ({t.points})" for t in [self.winning_team, self.losing_team]]))
+    if self.winning_team is None:
+      return f"Matchup Number: {self.matchup_id}"
+
+    if self.losing_team is None:
+      winner_name = self.winning_team.team_obj.team_name if self.winning_team.team_obj else self.winning_team.roster_id
+      return f"Matchup Number: {self.matchup_id} - {winner_name} ({self.winning_team.points})"
+
+    return (
+      f"Matchup Number: {self.matchup_id} - "
+      + (
+        " def. ".join(
+          [
+            f"{t.team_obj.team_name if t.team_obj else t.roster_id} ({t.points})"
+            for t in [self.winning_team, self.losing_team]
+          ]
+        )
+      )
+    )

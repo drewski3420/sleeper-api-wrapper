@@ -25,7 +25,7 @@ class LeagueAssembler:
     league.drafts = self._get_drafts(league.league_id, league.users_by_id, league.teams_by_user_id)
 
     league.sport_state = self._get_sport_state(league.sport)
-    league.is_current_season = 1 if league.sport_state['league_season'] == league.season else 0
+    league.is_current_season = 1 if league.sport_state.get('league_season') == league.season else 0
 
   def assemble_week_matchups(self, league, week: int) -> list[Matchup]:
     all_players = self._get_all_players(league)
@@ -41,7 +41,7 @@ class LeagueAssembler:
     for matchup_id, matchup_entries in matchups.items():
       matchup = Matchup(matchup_id=matchup_id, data=matchup_entries)
       for team_entry in matchup.teams:
-        team_entry.team_obj = league.teams_by_roster_id[team_entry.roster_id]
+        team_entry.team_obj = league.teams_by_roster_id.get(team_entry.roster_id)
         for player in team_entry.players_with_points:
           player['player'] = all_players.get_player(player['player_id'])
       results.append(matchup)
@@ -89,21 +89,22 @@ class LeagueAssembler:
 
   def _get_users(self, league_id) -> list[User]:
     users_data = self.client.get_league_users(league_id)
-    return [User(user_data.get('user_id'), user_data=user_data) for user_data in users_data]
+    return [User(int(user_data.get('user_id')), user_data=user_data) for user_data in users_data]
 
   def _get_teams(self, league_id, users_by_id) -> list[Team]:
     teams_data = self.client.get_league_rosters(league_id)
     teams = []
 
     for team in teams_data:
-      team['user'] = users_by_id.get(team.get("owner_id"))
+      owner_id = team.get("owner_id")
+      team['user'] = users_by_id.get(int(owner_id)) if owner_id is not None else None
       teams.append(Team(team))
 
     return teams
 
   def _get_drafts(self, league_id, users_by_id, teams_by_user_id) -> list[Draft]:
     drafts = self.client.get_league_drafts(league_id)
-    return [Draft(draft.get('draft_id'), users_by_id, teams_by_user_id) for draft in drafts]
+    return [Draft(int(draft.get('draft_id')), users_by_id, teams_by_user_id) for draft in drafts]
 
   def _get_sport_state(self, sport: str) -> dict:
     return self.client.get_sport_state(sport)
