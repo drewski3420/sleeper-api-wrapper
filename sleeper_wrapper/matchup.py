@@ -1,45 +1,42 @@
-from typing import List
+class MatchupPlayer:
+  def __init__(self, player_id: str, points: float, starters: list[str]):
+    self.player_id = player_id
+    self.points = points
+    self.is_starter = 1 if player_id in starters else 0
+    self.is_bench = 1 if player_id not in starters else 0
+    self.player = None
 
-"""
-{'points': 133.66, 
-'players': ['11563', '11581', '11618', '11632', '11635', '12469', '12505', '12508', '12512', '12518', '3214', '4137', '4663', '4950', '4984', '5947', '6783', '6803', '7528', '8131', '8150', '8183', '9228', '9484', '9488', '9508'], 
-'roster_id': 7, 'custom_points': None, 
-'matchup_id': 1, 
-'starters': ['4984', '8150', '4137', '11632', '11635', '9488', '12518', '5947', '6783'], 
-'starters_points': [38.76, 13.4, 12.4, 9.6, 10.4, 14.9, 11.4, 13.7, 9.1], 
-'players_points': {'11563': 6.84, '11581': 0.0, '11618': 0.0, '11632': 9.6, '11635': 10.4, '12469': 13.3, '12505': 0.0, '12508': 0.0, '12512': 0.0, '12518': 11.4, '3214': 8.6, '4137': 12.4, '4663': 7.2, '4950': 0.0, '4984': 38.76, '5947': 13.7, '6783': 9.1, '6803': 0.0, '7528': 1.5, '8131': 0.0, '8150': 13.4, '8183': 16.78, '9228': 8.16, '9484': 8.9, '9488': 14.9, '9508': 0.0}
-}
-"""
+  def __str__(self):
+    return str(self.__dict__)
+
+
 class TeamEntry:
   def __init__(self, data: dict):
     self._data = data
     self.roster_id = int(self._data["roster_id"])
     self.points = self._data["points"]
     self.players_with_points = self._get_player_points()
-    self.starter_points = sum(d["points"] for d in self.players_with_points if d["is_starter"] == 1)
-    self.bench_points = sum(d["points"] for d in self.players_with_points if d["is_bench"] == 1)
+    self.starter_points = sum(player.points for player in self.players_with_points if player.is_starter == 1)
+    self.bench_points = sum(player.points for player in self.players_with_points if player.is_bench == 1)
     self.matchup_id = self._data["matchup_id"]
     self.team_obj = None
-    
-  def _get_player_points(self) -> List:
+
+  def _get_player_points(self) -> list[MatchupPlayer]:
     players_points = self._data.get("players_points") or {}
     starters = self._data.get("starters") or []
-    r = []
+    players = []
+
     for player_id, points in players_points.items():
-      p = {}
-      p['player_id'] = player_id
-      p['points'] = points
-      p['is_starter'] = (1 if player_id in starters else 0)
-      p['is_bench'] = (1 if player_id not in starters else 0)
-      p['player'] = None
-      r.append(p)
-    return r
+      players.append(MatchupPlayer(player_id=player_id, points=points, starters=starters))
+
+    return players
 
   def __str__(self):
     return str(self.__dict__)
 
+
 class Matchup:
-  def __init__(self, matchup_id: int, data: List):
+  def __init__(self, matchup_id: int, data: list[dict]):
     self._data = data
     self.matchup_id = int(matchup_id)
     self.teams = [TeamEntry(e) for e in data]

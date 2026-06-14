@@ -215,6 +215,19 @@ def test_matchup_handles_single_team() -> None:
   assert matchup.losing_team is None
 
 
+def test_matchup_uses_player_objects_instead_of_raw_dicts() -> None:
+  league = League(123)
+
+  matchup = league.get_week_matchups(1)[0]
+  matchup_player = matchup.teams[0].players_with_points[0]
+
+  assert matchup_player.player_id == "9001"
+  assert matchup_player.points == 25.0
+  assert matchup_player.is_starter == 1
+  assert matchup_player.is_bench == 0
+  assert matchup_player.player.full_name == "Josh Allen"
+
+
 def test_transaction_handles_missing_timestamps_and_unknown_rosters() -> None:
   transaction = Transaction(
     {

@@ -42,8 +42,8 @@ class LeagueAssembler:
       matchup = Matchup(matchup_id=matchup_id, data=matchup_entries)
       for team_entry in matchup.teams:
         team_entry.team_obj = league.teams_by_roster_id.get(team_entry.roster_id)
-        for player in team_entry.players_with_points:
-          player['player'] = all_players.get_player(player['player_id'])
+        for matchup_player in team_entry.players_with_points:
+          matchup_player.player = all_players.get_player(matchup_player.player_id)
       results.append(matchup)
 
     return results
