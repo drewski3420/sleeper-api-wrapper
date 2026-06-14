@@ -7,6 +7,13 @@ from pathlib import Path
 import pytest
 
 from sleeper_wrapper import League
+from sleeper_wrapper.api_client import SleeperApiClient
+from sleeper_wrapper.base_api import BaseApi
+
+
+@pytest.fixture(autouse=True)
+def use_real_client() -> None:
+    BaseApi.set_client(SleeperApiClient())
 
 
 def _load_test_config() -> dict:
