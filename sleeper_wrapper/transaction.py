@@ -35,8 +35,8 @@ class Transaction:
     self.roster_ids = data.get("roster_ids", [])
 
     self.settings = data.get("settings")
-#    self.adds = data.get("adds") or {}
-#    self.drops = data.get("drops") or {}
+    self.adds = data.get("adds") or {}
+    self.drops = data.get("drops") or {}
 
   def __repr__(self):
     return (

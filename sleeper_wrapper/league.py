@@ -94,9 +94,7 @@ class League(BaseApi):
   def _get_sport_state(self) -> dict:
     return BaseApi()._call(f"https://api.sleeper.app/v1/state/{self.sport}")
 
-  def get_transactions(self, week: int, transaction_type: str = "All") -> list[Transaction]:
-    print(f"Getting transactions for Week {week}, current len is {sum(len(l) for l in self.transactions.values())}")
-
+  def _get_transactions(self, week: int, transaction_type: str = "All") -> list[Transaction]:
     if week not in self.transactions.keys():
       self.transactions[week] = []
       transactions_data = self._call("{}/{}/{}".format(self._base_url,"transactions", week))
@@ -118,16 +116,16 @@ class League(BaseApi):
 
         self.transactions[week].append(transaction)
 
-    return [t for t in self.transactions if transaction_type in [t.transaction_type,"All"]]
+    return [t for t in self.transactions[week] if transaction_type in [t.transaction_type,"All"]]
 
   def get_trades(self, week: int) -> list:
-    return self.get_transactions(week, "trade")
+    return self._get_transactions(week, "trade")
 
   def get_waivers(self, week: int) -> list:
-    return self.get_transactions(week, "waiver")
+    return self._get_transactions(week, "waiver")
 
   def get_free_agents(self, week: int) -> list:
-    return self.get_transactions(week, "free_agent")
+    return self._get_transactions(week, "free_agent")
 
 #
 #  def get_playoff_winners_bracket(self) -> list:
