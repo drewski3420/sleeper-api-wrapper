@@ -21,6 +21,7 @@ class Draft(BaseApi):
     self._teams_by_user_id = teams_by_user_id
 
     self.picks = self._get_all_picks()
+    self.traded_picks = self._get_traded_picks()
     self._data = self._get_draft()
 
     last_picked = self._data.get('last_picked')
@@ -30,6 +31,7 @@ class Draft(BaseApi):
     self.last_pick_time = datetime.fromtimestamp(last_picked / 1000) if last_picked else None
     self.draft_start_time = datetime.fromtimestamp(start_time / 1000) if start_time else None
     self.draft_type = self._data.get('type')
+    self.type = self.draft_type
     self.scoring_type = metadata.get('scoring_type')
 
   def __str__(self):
