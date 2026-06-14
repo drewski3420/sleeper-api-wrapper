@@ -5,11 +5,11 @@ from .base_api import BaseApi
 from .pick import Pick
 from .user import User
 
+
 class Draft(BaseApi):
   def __init__(self, draft_id: Union[str, int], league_users: dict[int, User]) -> None:
     self.draft_id = draft_id
     self._league_users = league_users
-    self._base_url = f"https://api.sleeper.app/v1/draft/{self.draft_id}"
 
     self.picks = self._get_all_picks()
     self._data = self._get_draft()
@@ -22,15 +22,15 @@ class Draft(BaseApi):
     return f"{self.draft_type} type draft {self.draft_id} started {self.draft_start_time}, last pick {self.last_pick_time}"
 
   def _get_draft(self) -> dict:
-    return self._call(self._base_url)
+    return self.get_client().get_draft(self.draft_id)
 
   def _get_all_picks(self) -> list[Pick]:
-    picks = self._call(f"{self._base_url}/picks")
+    picks = self.get_client().get_draft_picks(self.draft_id)
     return [Pick(pick, self._league_users) for pick in picks]
 
   def _get_traded_picks(self) -> list[Pick]:
-    picks = self._call(f"{self._base_url}/traded_picks")
-    return [Pick(pick) for pick in picks]
+    picks = self.get_client().get_draft_traded_picks(self.draft_id)
+    return [Pick(pick, self._league_users) for pick in picks]
 
   def get_roster_counts(self) -> dict[str, dict[str, int]]:
     counts = {}

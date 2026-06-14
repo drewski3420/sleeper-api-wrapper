@@ -1,20 +1,17 @@
-from typing import Union
 from collections import defaultdict
+from typing import Union
 
-from .base_api import BaseApi
-from .stats import Stats
-from .draft import Draft
-from .team import Team
-from .user import User
-from .matchup import Matchup
 from .all_players import AllPlayers
-from .player import Player
-from .transaction import Transaction, Waiver, FreeAgent, Trade
+from .base_api import BaseApi
+from .draft import Draft
+from .matchup import Matchup
+from .team import Team
+from .transaction import FreeAgent, Trade, Transaction, Waiver
+
 
 class League(BaseApi):
   def __init__(self, league_id: Union[str, int]) -> None:
     self.league_id = league_id
-    self._base_url = "https://api.sleeper.app/v1/league/{}".format(self.league_id)
     self._data = self._get_data()
     self.season = self._data.get('season')
     self.sport = self._data.get('sport')
@@ -29,26 +26,26 @@ class League(BaseApi):
     self.users = self._get_users()
     self.users_by_id = {user['user_id']: user for user in self.users}
     self.teams = self._get_teams()
-    self.teams_by_user_id ={team.user['user_id']: team for team in self.teams}
-    self.teams_by_roster_id ={team.roster_id: team for team in self.teams}
+    self.teams_by_user_id = {team.user['user_id']: team for team in self.teams if team.user}
+    self.teams_by_roster_id = {team.roster_id: team for team in self.teams}
     self.drafts = self._get_drafts()
     self.all_players = None
     self.sport_state = self._get_sport_state()
-    self.is_current_season = (1 if self.sport_state['league_season'] == self.season else 0 )
+    self.is_current_season = (1 if self.sport_state['league_season'] == self.season else 0)
     self.transactions = {}
 
   def __str__(self):
     return f"{self.num_teams} Team League: {self.league_name} (ID {self.league_id})"
 
   def _get_data(self) -> dict:
-    return self._call(self._base_url)
+    return self.get_client().get_league(self.league_id)
 
   def _get_drafts(self) -> list:
-    drafts = self._call("{}/{}".format(self._base_url, "drafts"))
+    drafts = self.get_client().get_league_drafts(self.league_id)
     return [Draft(draft.get('draft_id'), self.teams_by_user_id) for draft in drafts]
 
   def _get_teams(self) -> list:
-    teams_data = self._call("{}/{}".format(self._base_url,"rosters"))
+    teams_data = self.get_client().get_league_rosters(self.league_id)
 
     teams = []
     for team in teams_data:
@@ -64,8 +61,7 @@ class League(BaseApi):
     return teams
 
   def _get_users(self) -> list:
-    users = self._call("{}/{}".format(self._base_url,"users"))
-    return users
+    return self.get_client().get_league_users(self.league_id)
 
   def get_results(self) -> list:
     r = defaultdict()
@@ -74,10 +70,10 @@ class League(BaseApi):
     return r
 
   def get_week_matchups(self, week: int) -> list:
-    self.all_players = AllPlayers(season=self.season,sport=self.sport)
+    self.all_players = AllPlayers(season=self.season, sport=self.sport)
     matchups = defaultdict(list)
     r = []
-    matchup_data = self._call("{}/{}/{}".format(self._base_url,"matchups", week))
+    matchup_data = self.get_client().get_league_matchups(self.league_id, week)
     matchup_data = sorted(matchup_data, key=lambda m: m['matchup_id'])
     for m in matchup_data:
       matchups[m["matchup_id"]].append(m)
@@ -92,31 +88,28 @@ class League(BaseApi):
     return r
 
   def _get_sport_state(self) -> dict:
-    return BaseApi()._call(f"https://api.sleeper.app/v1/state/{self.sport}")
+    return self.get_client().get_sport_state(self.sport)
 
   def _get_transactions(self, week: int, transaction_type: str = "All") -> list[Transaction]:
     if week not in self.transactions.keys():
       self.transactions[week] = []
-      transactions_data = self._call("{}/{}/{}".format(self._base_url,"transactions", week))
+      transactions_data = self.get_client().get_league_transactions(self.league_id, week)
 
       for item in transactions_data:
         item_type = item.get("type")
 
         if item_type == "trade":
           transaction = Trade(item)
-
         elif item_type == "waiver":
           transaction = Waiver(item)
-
         elif item_type == "free_agent":
           transaction = FreeAgent(item)
-
         else:
           transaction = Transaction(item)
 
         self.transactions[week].append(transaction)
 
-    return [t for t in self.transactions[week] if transaction_type in [t.transaction_type,"All"]]
+    return [t for t in self.transactions[week] if transaction_type in [t.transaction_type, "All"]]
 
   def get_trades(self, week: int) -> list:
     return self._get_transactions(week, "trade")
@@ -145,7 +138,7 @@ class League(BaseApi):
 #    """Creates standings based on the team's wins, losses, and ties.
 #
 #    Args:
-#      rosters: 
+#      rosters:
 #        List of rosters for the league.
 #      users: list
 #        List of user IDs for the league.
@@ -173,7 +166,7 @@ class League(BaseApi):
 #    clean_standings_list = []
 #    for item in roster_standings_list:
 #      clean_standings_list.append((item[3], str(item[0]), str(item[1]), str(item[2])))
-#    
+#
 #    return clean_standings_list
 
 #  def get_close_games(self, scoreboards: list, close_num: float) -> dict:
@@ -231,5 +224,3 @@ class League(BaseApi):
 #
 #  def get_rosters_players(self) -> None:
 #    pass
-
-

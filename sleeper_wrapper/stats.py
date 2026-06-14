@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 warning_message = "The Stats API is no longer included in Sleeper's documentation, therefore we cannot guarantee that this class will continue working."
 
+
 class Stats(BaseApi):
   """Retrieves stats and projections from Sleeper's stats provider.
 
@@ -18,9 +19,8 @@ class Stats(BaseApi):
 
   def __init__(self):
     """Initializes the instance for getting the stats."""
-    logger.warn(warning_message)
-    self._base_url = "https://api.sleeper.app/v1/stats/{}".format("nfl")
-    self._projections_base_url = "https://api.sleeper.app/v1/projections/{}".format("nfl")
+    logger.warning(warning_message)
+    self._sport = "nfl"
 
   def get_all_stats(self, season_type: str, season: Union[str, int]) -> dict:
     """Retrieves all statistics for the given season.
@@ -40,8 +40,7 @@ class Stats(BaseApi):
     Returns:
       A dictionary with each player and their statistics for the season.
     """
-    # season_type: "regular" works..."reg", "regular_season", "playoffs", and "preseason" don't seem to work
-    return self._call("{}/{}/{}".format(self._base_url, season_type, season))
+    return self.get_client().get_stats(self._sport, season_type, season)
 
   def get_week_stats(self, season_type: str, season: Union[str, int], week: str) -> dict:
     """Retrieves all statistics for the given season and week.
@@ -63,7 +62,7 @@ class Stats(BaseApi):
     Returns:
       A dictionary with each player and their statistics for the season's week.
     """
-    return self._call("{}/{}/{}/{}".format(self._base_url, season_type, season, week))
+    return self.get_client().get_week_stats(self._sport, season_type, season, week)
 
   def get_all_projections(self, season_type: str, season: Union[str, int]) -> dict:
     """Retrieves all projections for the given season.
@@ -82,7 +81,7 @@ class Stats(BaseApi):
     Returns:
       A dictionary with each player and their projections for the year.
     """
-    return self._call("{}/{}/{}".format(self._projections_base_url, season_type, season))
+    return self.get_client().get_projections(self._sport, season_type, season)
 
   def get_week_projections(self, season_type: str, season: Union[str, int], week: str) -> dict:
     """Retrieves all projections for the given season and week.
@@ -93,7 +92,7 @@ class Stats(BaseApi):
 
     Arguments:
       season_type: str
-        The type of season for pulling the projections. Supports "regular", 
+        The type of season for pulling the projections. Supports "regular",
         "pre", and "post".
       season: Union[str, int]
         The year of the season for pulling the projections.
@@ -103,7 +102,7 @@ class Stats(BaseApi):
     Returns:
       A dictionary with each player and their projections for the year.
     """
-    return self._call("{}/{}/{}/{}".format(self._projections_base_url, season_type, season, week))
+    return self.get_client().get_week_projections(self._sport, season_type, season, week)
 
   def get_player_week_stats(self, stats: dict, player_id: str) -> Union[dict, None]:
     """Gets a player's stats or projections from the given dictionary.
@@ -121,7 +120,6 @@ class Stats(BaseApi):
     """
 
     return stats.get(player_id, None)
-
 
   def get_player_week_score(self, stats: dict, player_id: str) -> Union[dict, None]:
     """Retrieves a player's points scored for the primary scoring formats.
@@ -146,4 +144,3 @@ class Stats(BaseApi):
       result_dict["pts_half_ppr"] = player_stats.get("pts_half_ppr", None)
 
     return result_dict
-
