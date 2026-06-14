@@ -1,9 +1,8 @@
-from typing import Union
-from collections import defaultdict
+from typing import List
 
 from .base_api import BaseApi
-from .team import Team
 from .player import Player
+from .team import Team
 
 """
 {'points': 133.66, 
@@ -29,7 +28,7 @@ class TeamEntry:
   def _get_player_points(self) -> List:
     players_points = self._data["players_points"]
     starters = self._data["starters"]
-    r = [] #defaultdict(dict)
+    r = []
     for player_id, points in players_points.items():
       p = {}
       p['player_id'] = player_id
@@ -44,7 +43,7 @@ class TeamEntry:
     return str(self.__dict__)
 
 class Matchup:
-  def __init__(self, matchup_id: str, data: List):
+  def __init__(self, matchup_id: int, data: List):
     self._data = data
     self.matchup_id = matchup_id
     self.teams = [TeamEntry(e) for e in data]
@@ -69,7 +68,4 @@ class Matchup:
       self.losing_team = t1
 
   def __str__(self):
-#    return f"Matchup Number: {str(self.matchup_id)} - {self.winning_team.team_obj.team_name} {self.winning_team.point} def, {self.teams[1].team_obj.team_name}"
-
-
     return f"Matchup Number: {str(self.matchup_id)} - " + (" def. ".join([f"{t.team_obj.team_name} ({t.points})" for t in [self.winning_team, self.losing_team]]))

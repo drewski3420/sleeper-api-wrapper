@@ -1,5 +1,4 @@
 import logging
-from typing import Union
 
 from sleeper_wrapper.base_api import BaseApi
 
@@ -22,7 +21,7 @@ class Stats(BaseApi):
     logger.warning(warning_message)
     self._sport = "nfl"
 
-  def get_all_stats(self, season_type: str, season: Union[str, int]) -> dict:
+  def get_all_stats(self, season_type: str, season: int) -> dict:
     """Retrieves all statistics for the given season.
 
     It supports detailed data going back until 2010 before only providing
@@ -34,7 +33,7 @@ class Stats(BaseApi):
       season_type: str
         The type of season for pulling the stats. Supports "regular", "pre",
         and "post".
-      season: Union[str, int]
+      season: int
         The year of the season for pulling the stats.
 
     Returns:
@@ -42,7 +41,7 @@ class Stats(BaseApi):
     """
     return self.get_client().get_stats(self._sport, season_type, season)
 
-  def get_week_stats(self, season_type: str, season: Union[str, int], week: str) -> dict:
+  def get_week_stats(self, season_type: str, season: int, week: int) -> dict:
     """Retrieves all statistics for the given season and week.
 
     It supports detailed data going back until 2010 before only providing
@@ -54,9 +53,9 @@ class Stats(BaseApi):
       season_type: str
         The type of season for pulling the stats. Supports "regular", "pre",
         and "post".
-      season: Union[str, int]
+      season: int
         The year of the season for pulling the stats.
-      week: Union[str, int]
+      week: int
         The week of the season for pulling the stats.
 
     Returns:
@@ -64,7 +63,7 @@ class Stats(BaseApi):
     """
     return self.get_client().get_week_stats(self._sport, season_type, season, week)
 
-  def get_all_projections(self, season_type: str, season: Union[str, int]) -> dict:
+  def get_all_projections(self, season_type: str, season: int) -> dict:
     """Retrieves all projections for the given season.
 
     It supports data going back until 2018 and contains information such as
@@ -75,7 +74,7 @@ class Stats(BaseApi):
       season_type: str
         The type of season for pulling the projections. Supports "regular",
         "pre", and "post".
-      season: Union[str, int]
+      season: int
         The year of the season for pulling the projections.
 
     Returns:
@@ -83,7 +82,7 @@ class Stats(BaseApi):
     """
     return self.get_client().get_projections(self._sport, season_type, season)
 
-  def get_week_projections(self, season_type: str, season: Union[str, int], week: str) -> dict:
+  def get_week_projections(self, season_type: str, season: int, week: int) -> dict:
     """Retrieves all projections for the given season and week.
 
     It supports data going back until 2018 and contains information such as
@@ -94,9 +93,9 @@ class Stats(BaseApi):
       season_type: str
         The type of season for pulling the projections. Supports "regular",
         "pre", and "post".
-      season: Union[str, int]
+      season: int
         The year of the season for pulling the projections.
-      week: Union[str, int]
+      week: int
         The week of the season for pulling the projections.
 
     Returns:
@@ -104,7 +103,7 @@ class Stats(BaseApi):
     """
     return self.get_client().get_week_projections(self._sport, season_type, season, week)
 
-  def get_player_week_stats(self, stats: dict, player_id: str) -> Union[dict, None]:
+  def get_player_week_stats(self, stats: dict, player_id: str) -> dict | None:
     """Gets a player's stats or projections from the given dictionary.
 
     Arguments:
@@ -121,7 +120,7 @@ class Stats(BaseApi):
 
     return stats.get(player_id, None)
 
-  def get_player_week_score(self, stats: dict, player_id: str) -> Union[dict, None]:
+  def get_player_week_score(self, stats: dict, player_id: str) -> dict | None:
     """Retrieves a player's points scored for the primary scoring formats.
 
     Arguments:

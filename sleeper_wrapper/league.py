@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from .base_api import BaseApi
 
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 class League(BaseApi):
-  def __init__(self, league_id: Union[str, int]) -> None:
+  def __init__(self, league_id: int) -> None:
     self.league_id = league_id
     self._data = self._get_data()
 

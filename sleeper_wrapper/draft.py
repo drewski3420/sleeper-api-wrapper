@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from .base_api import BaseApi
 from .pick import Pick
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class Draft(BaseApi):
-  def __init__(self, draft_id: Union[str, int], league_teams_by_user_id: dict[int, "Team"]) -> None:
+  def __init__(self, draft_id: int, league_teams_by_user_id: dict[int, "Team"]) -> None:
     self.draft_id = draft_id
     self._league_teams_by_user_id = league_teams_by_user_id
 
