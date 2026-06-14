@@ -22,7 +22,7 @@ class LeagueAssembler:
     league.teams_by_user_id = {team.user.user_id: team for team in league.teams if team.user}
     league.teams_by_roster_id = {team.roster_id: team for team in league.teams}
 
-    league.drafts = self._get_drafts(league.league_id, league.teams_by_user_id)
+    league.drafts = self._get_drafts(league.league_id, league.users_by_id, league.teams_by_user_id)
 
     league.sport_state = self._get_sport_state(league.sport)
     league.is_current_season = 1 if league.sport_state['league_season'] == league.season else 0
@@ -101,9 +101,9 @@ class LeagueAssembler:
 
     return teams
 
-  def _get_drafts(self, league_id, teams_by_user_id) -> list[Draft]:
+  def _get_drafts(self, league_id, users_by_id, teams_by_user_id) -> list[Draft]:
     drafts = self.client.get_league_drafts(league_id)
-    return [Draft(draft.get('draft_id'), teams_by_user_id) for draft in drafts]
+    return [Draft(draft.get('draft_id'), users_by_id, teams_by_user_id) for draft in drafts]
 
   def _get_sport_state(self, sport: str) -> dict:
     return self.client.get_sport_state(sport)

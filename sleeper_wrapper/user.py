@@ -35,4 +35,4 @@ class User(BaseApi):
     from .draft import Draft
 
     drafts = self.get_client().get_user_drafts(self.user_id, sport, season)
-    return [Draft(d.get('draft_id'), {}) for d in drafts]
+    return [Draft(d.get('draft_id'), {self.user_id: self}, {}) for d in drafts]

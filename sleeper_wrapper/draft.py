@@ -6,11 +6,18 @@ from .pick import Pick
 
 if TYPE_CHECKING:
   from .team import Team
+  from .user import User
 
 
 class Draft(BaseApi):
-  def __init__(self, draft_id: int, teams_by_user_id: dict[int, "Team"]) -> None:
+  def __init__(
+      self,
+      draft_id: int,
+      users_by_id: dict[int, "User"],
+      teams_by_user_id: dict[int, "Team"],
+  ) -> None:
     self.draft_id = draft_id
+    self._users_by_id = users_by_id
     self._teams_by_user_id = teams_by_user_id
 
     self.picks = self._get_all_picks()
@@ -33,11 +40,11 @@ class Draft(BaseApi):
 
   def _get_all_picks(self) -> list[Pick]:
     picks = self.get_client().get_draft_picks(self.draft_id)
-    return [Pick(pick, self._teams_by_user_id) for pick in picks]
+    return [Pick(pick, self._users_by_id, self._teams_by_user_id) for pick in picks]
 
   def _get_traded_picks(self) -> list[Pick]:
     picks = self.get_client().get_draft_traded_picks(self.draft_id)
-    return [Pick(pick, self._teams_by_user_id) for pick in picks]
+    return [Pick(pick, self._users_by_id, self._teams_by_user_id) for pick in picks]
 
   def get_roster_counts(self) -> dict[str, dict[str, int]]:
     counts = {}
