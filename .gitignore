@@ -109,3 +109,4 @@ poetry.lock
 #Mine
 *.json
 index.py
+.aider*
