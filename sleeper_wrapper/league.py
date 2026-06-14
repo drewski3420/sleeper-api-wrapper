@@ -1,10 +1,14 @@
 from typing import Union
+from collections import defaultdict
 
 from .base_api import BaseApi
 from .stats import Stats
 from .draft import Draft
 from .team import Team
 from .user import User
+from .matchup import Matchup
+from .all_players import AllPlayers
+from .player import Player
 
 class League(BaseApi):
   def __init__(self, league_id: Union[str, int]) -> None:
@@ -52,9 +56,30 @@ class League(BaseApi):
     users = self._call("{}/{}".format(self._base_url,"users"))
     return users
 
-#  def get_matchups(self, week: Union[str, int]) -> list:
-#    """Retrieves the league's matchups for the given week."""
-#    return self._call("{}/{}/{}".format(self._base_url,"matchups", week))
+  def get_results(self) -> list:
+    r = defaultdict()
+    for week in range(self.first_week, self.most_recent_week + 1):
+      r[week] = self.get_week_matchups(week)
+    return r
+
+  def get_week_matchups(self, week: int) -> list:
+    self.all_players = AllPlayers(season=self.season,sport=self.sport)
+    matchups = defaultdict(list)
+    r = []
+    matchup_data = self._call("{}/{}/{}".format(self._base_url,"matchups", week))
+    matchup_data = sorted(matchup_data, key=lambda m: m['matchup_id'])
+    for m in matchup_data:
+      matchups[m["matchup_id"]].append(m)
+
+    for matchup_id, m in matchups.items():
+      matchup = Matchup(matchup_id=matchup_id, data=m)
+      for t in matchup.teams:
+        t.team_obj = self.teams_by_roster_id[t.roster_id]
+        for player in t.players_with_points:
+          player['player'] = self.all_players.get_player(player['player_id'])
+      r.append(matchup)
+    return r
+
 #
 #  def get_playoff_winners_bracket(self) -> list:
 #    """Retrieves the winner's playoff bracket."""
