@@ -25,7 +25,7 @@ class Pick:
     self.player = self._get_player()
     self.user = self._get_pick_user()
     self.team = self._get_pick_team()
-    self.team_name = self.team.team_name if self.team else str(self.picked_by_user_id)
+    self.team_name = self.team.team_name if self.team else None
     self.round = self._data.get('round')
 
   def __str__(self):
