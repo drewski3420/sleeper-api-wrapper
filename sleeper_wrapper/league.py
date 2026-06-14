@@ -1,18 +1,22 @@
-from collections import defaultdict
-from typing import Union
+from __future__ import annotations
 
-from .all_players import AllPlayers
+from collections import defaultdict
+from typing import TYPE_CHECKING, Union
+
 from .base_api import BaseApi
-from .draft import Draft
-from .matchup import Matchup
-from .team import Team
-from .transaction import FreeAgent, Trade, Transaction, Waiver
+
+if TYPE_CHECKING:
+  from .draft import Draft
+  from .matchup import Matchup
+  from .team import Team
+  from .transaction import Transaction
 
 
 class League(BaseApi):
   def __init__(self, league_id: Union[str, int]) -> None:
     self.league_id = league_id
     self._data = self._get_data()
+
     self.season = self._data.get('season')
     self.sport = self._data.get('sport')
     self.settings = self._data.get('settings')
@@ -23,16 +27,21 @@ class League(BaseApi):
     self.num_teams = self._data.get('total_rosters')
     self.league_status = self._data.get('status')
     self.league_name = self._data.get('name')
-    self.users = self._get_users()
-    self.users_by_id = {user['user_id']: user for user in self.users}
-    self.teams = self._get_teams()
-    self.teams_by_user_id = {team.user['user_id']: team for team in self.teams if team.user}
-    self.teams_by_roster_id = {team.roster_id: team for team in self.teams}
-    self.drafts = self._get_drafts()
+
+    self.users = []
+    self.users_by_id = {}
+    self.teams = []
+    self.teams_by_user_id = {}
+    self.teams_by_roster_id = {}
+    self.drafts: list["Draft"] = []
     self.all_players = None
-    self.sport_state = self._get_sport_state()
-    self.is_current_season = (1 if self.sport_state['league_season'] == self.season else 0)
-    self.transactions = {}
+    self.sport_state = {}
+    self.is_current_season = 0
+    self.transactions: dict[int, list["Transaction"]] = {}
+
+    from .league_assembler import LeagueAssembler
+
+    LeagueAssembler(self.get_client()).assemble_league(self)
 
   def __str__(self):
     return f"{self.num_teams} Team League: {self.league_name} (ID {self.league_id})"
@@ -40,74 +49,22 @@ class League(BaseApi):
   def _get_data(self) -> dict:
     return self.get_client().get_league(self.league_id)
 
-  def _get_drafts(self) -> list:
-    drafts = self.get_client().get_league_drafts(self.league_id)
-    return [Draft(draft.get('draft_id'), self.teams_by_user_id) for draft in drafts]
-
-  def _get_teams(self) -> list:
-    teams_data = self.get_client().get_league_rosters(self.league_id)
-
-    teams = []
-    for team in teams_data:
-      user_info = self.users_by_id.get(team["owner_id"])
-
-      if user_info:
-        team['user'] = user_info
-      else:
-        team['user'] = None
-
-      teams.append(Team(team))
-
-    return teams
-
-  def _get_users(self) -> list:
-    return self.get_client().get_league_users(self.league_id)
-
-  def get_results(self) -> list:
+  def get_results(self) -> dict[int, list["Matchup"]]:
     r = defaultdict()
     for week in range(self.first_week, self.most_recent_week + 1):
       r[week] = self.get_week_matchups(week)
     return r
 
-  def get_week_matchups(self, week: int) -> list:
-    self.all_players = AllPlayers(season=self.season, sport=self.sport)
-    matchups = defaultdict(list)
-    r = []
-    matchup_data = self.get_client().get_league_matchups(self.league_id, week)
-    matchup_data = sorted(matchup_data, key=lambda m: m['matchup_id'])
-    for m in matchup_data:
-      matchups[m["matchup_id"]].append(m)
+  def get_week_matchups(self, week: int) -> list["Matchup"]:
+    from .league_assembler import LeagueAssembler
 
-    for matchup_id, m in matchups.items():
-      matchup = Matchup(matchup_id=matchup_id, data=m)
-      for t in matchup.teams:
-        t.team_obj = self.teams_by_roster_id[t.roster_id]
-        for player in t.players_with_points:
-          player['player'] = self.all_players.get_player(player['player_id'])
-      r.append(matchup)
-    return r
+    return LeagueAssembler(self.get_client()).assemble_week_matchups(self, week)
 
-  def _get_sport_state(self) -> dict:
-    return self.get_client().get_sport_state(self.sport)
+  def _get_transactions(self, week: int, transaction_type: str = "All") -> list["Transaction"]:
+    from .league_assembler import LeagueAssembler
 
-  def _get_transactions(self, week: int, transaction_type: str = "All") -> list[Transaction]:
-    if week not in self.transactions.keys():
-      self.transactions[week] = []
-      transactions_data = self.get_client().get_league_transactions(self.league_id, week)
-
-      for item in transactions_data:
-        item_type = item.get("type")
-
-        if item_type == "trade":
-          transaction = Trade(item)
-        elif item_type == "waiver":
-          transaction = Waiver(item)
-        elif item_type == "free_agent":
-          transaction = FreeAgent(item)
-        else:
-          transaction = Transaction(item)
-
-        self.transactions[week].append(transaction)
+    if week not in self.transactions:
+      self.transactions[week] = LeagueAssembler(self.get_client()).assemble_transactions(self, week)
 
     return [t for t in self.transactions[week] if transaction_type in [t.transaction_type, "All"]]
 
@@ -119,108 +76,3 @@ class League(BaseApi):
 
   def get_free_agents(self, week: int) -> list:
     return self._get_transactions(week, "free_agent")
-
-#
-#  def get_playoff_winners_bracket(self) -> list:
-#    """Retrieves the winner's playoff bracket."""
-#    return self._call("{}/{}".format(self._base_url,"winners_bracket"))
-#
-#  def get_playoff_losers_bracket(self) -> list:
-#    """Retrieves the loser's playoff bracket."""
-#    return self._call("{}/{}".format(self._base_url,"losers_bracket"))
-#
-
-#  def get_traded_picks(self) -> list:
-#    """Retrieves the league's traded draft picks."""
-#    return self._call("{}/{}".format(self._base_url,"traded_picks"))
-
-#  def get_standings(self, rosters: list, users: list) -> dict:
-#    """Creates standings based on the team's wins, losses, and ties.
-#
-#    Args:
-#      rosters:
-#        List of rosters for the league.
-#      users: list
-#        List of user IDs for the league.
-#
-#    Returns:
-#      List of tuples (team_name, wins, losses, points) sorted by wins in
-#      descending order.
-#    """
-#    users_dict = self.map_users_to_team_name(users)
-#
-#    roster_standings_list = []
-#    for roster in rosters:
-#      wins = roster["settings"]["wins"]
-#      points = roster["settings"]["fpts"]
-#      name = roster["owner_id"]
-#      losses = roster["settings"]["losses"]
-#      if name is not None:
-#        roster_tuple = (wins, losses, points, users_dict[name])
-#      else:
-#        roster_tuple = (wins, losses, points, None)
-#      roster_standings_list.append(roster_tuple)
-#
-#    roster_standings_list.sort(reverse = 1)
-#
-#    clean_standings_list = []
-#    for item in roster_standings_list:
-#      clean_standings_list.append((item[3], str(item[0]), str(item[1]), str(item[2])))
-#
-#    return clean_standings_list
-
-#  def get_close_games(self, scoreboards: list, close_num: float) -> dict:
-#    """Returns scoreboard's games where final margin is beneath given number.
-#
-#    Args:
-#      scoreboards: list
-#        List of scoreboards, which can be retrieved with the
-#        `get_scoreboards()` method.
-#      close_num: float
-#        The final margin to use as a threshold for determining close games.
-#
-#    Returns:
-#      A dict of matchups qualifying as close.
-#    """
-#    close_games_dict = {}
-#    for key in scoreboards:
-#      team_one_score = scoreboards[key][0][1]
-#      team_two_score = scoreboards[key][1][1]
-#
-#      if abs(team_one_score-team_two_score) < close_num:
-#        close_games_dict[key] = scoreboards[key]
-#    return close_games_dict
-
-#  def empty_roster_spots(self, user_id: Union[str, int]) -> Union[int, None]:
-#    """Returns the number of empty roster spots on a user's team.
-#
-#    Args:
-#      user_id: Union[str, int]
-#        The user's ID to check for empty roster spots.
-#
-#    Returns:
-#      The number of empty roster spots assuming the user was found. Otherwise
-#      returns `None`.
-#    """
-#    # get size of maximum roster
-#    max_roster_size = len(self._league["roster_positions"])
-#
-#    # finds roster of user, returns max size - size of user roster
-#    rosters = self.get_rosters()
-#    for roster in rosters:
-#      if user_id == roster["owner_id"]:
-#        return max_roster_size - len(roster["players"])
-#
-#    # returns None if user was not found
-#    return None
-#
-#
-#  def get_league_name(self) -> str:
-#    """Returns name of league."""
-#    return self._league["name"]
-#
-#  def get_negative_scores(self, week: Union[str, int]) -> None:
-#    pass
-#
-#  def get_rosters_players(self) -> None:
-#    pass
