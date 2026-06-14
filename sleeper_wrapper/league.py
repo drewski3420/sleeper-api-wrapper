@@ -178,66 +178,6 @@ class League(BaseApi):
 #    
 #    return clean_standings_list
 
-#  def get_scoreboards(self, rosters: list, matchups: list, users: list, score_type: str, season: Union[str, int], week: Union[str, int]) -> Union[dict, None]:
-#    """Returns the team names and scores from each matchup.
-#
-#    Uses the provided information about the league to create a scoreboard
-#    for the given week. It pulls data from the rosters and users to find
-#    the team name and then pulls the team's score. It does not currently
-#    support leagues with custom scoring options and relies on the `Stats()`
-#    class, which is no longer officially documented by Sleeper.
-#
-#    Args:
-#      rosters: list
-#        List of rosters for the league.
-#      matchups: list
-#        List of matchups for that week.
-#      users: list
-#        List of users for the league.
-#      score_type: str
-#        Scoring type for the league, eg "pts_std", "pts_ppr", or "pts_half_ppr"
-#      season: Union[str, int]
-#        The season to retrieve the scoreboards. May be provided as either a
-#        str or an int.
-#      week: Union[str, int]
-#        The week to retrieve the scoreboards. May be provided as either a
-#        str or an int.
-#
-#    Returns:
-#      A dict with the matchup ID as key and the corresponding teams' names
-#      and scores for that matchup.
-#    """
-#    roster_id_dict = self.map_rosterid_to_ownerid(rosters)
-#
-#    if len(matchups) == 0:
-#      return None
-#
-#    # Get the users to team name stats
-#    users_dict = self.map_users_to_team_name(users)
-#
-#    # Map roster_id to points
-#    scoreboards_dict = {}
-#
-#    for team in matchups:
-#      matchup_id = team["matchup_id"]
-#      current_roster_id = team["roster_id"]
-#      owner_id = roster_id_dict[current_roster_id]
-#      if owner_id is not None:
-#        team_name = users_dict[owner_id]
-#      else:
-#        team_name = "Team name not available"
-#
-#      team_score = self.get_team_score(team["starters"], score_type, season, week)
-#      if team_score is None:
-#        team_score = 0
-#
-#      team_score_tuple = (team_name, team_score)
-#      if matchup_id not in scoreboards_dict:
-#        scoreboards_dict[matchup_id] = [team_score_tuple]
-#      else:
-#        scoreboards_dict[matchup_id].append(team_score_tuple)
-#    return scoreboards_dict
-
 #  def get_close_games(self, scoreboards: list, close_num: float) -> dict:
 #    """Returns scoreboard's games where final margin is beneath given number.
 #
@@ -260,43 +200,6 @@ class League(BaseApi):
 #        close_games_dict[key] = scoreboards[key]
 #    return close_games_dict
 
-#  def get_team_score(self, starters: list, score_type: str, season: Union[str, int], week: Union[str, int]) -> float:
-#    """Retrieves a team's scores for a week based on the score type.
-#
-#    Uses the provided list of starters to pull their stats for that week
-#    with the given score type. It does not currently support leagues with
-#    custom scoring options because it pulls the pre-calculated score based
-#    on score type and does not calculate the score based on the league's
-#    scoring setting. It relies on the `Stats()` class to do this, which is 
-#    no longer officially documented by Sleeper.
-#
-#    Args:
-#      starters: list
-#        A list of starters for the team.
-#      score_type: str
-#        Scoring type for the league, eg "pts_std", "pts_ppr", or "pts_half_ppr"
-#      season: Union[str, int]
-#        The season to retrieve the scores. May be provided as either a str 
-#        or an int.
-#      week: Union[str, int]
-#        The week to retrieve the scores. May be provided as either a str or
-#        an int.
-#
-#    Returns:
-#      The total score as a float for the team in that week.
-#    """
-#    total_score = 0
-#    stats = Stats()
-#    week_stats = stats.get_week_stats("regular", season, week)
-#    for starter in starters:
-#      if stats.get_player_week_stats(week_stats, starter) is not None:
-#        try:
-#          total_score += stats.get_player_week_stats(week_stats, starter)[score_type]
-#        except KeyError:
-#          total_score += 0
-#
-#    return total_score
-#
 #  def empty_roster_spots(self, user_id: Union[str, int]) -> Union[int, None]:
 #    """Returns the number of empty roster spots on a user's team.
 #
