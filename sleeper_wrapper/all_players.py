@@ -8,7 +8,6 @@ from .player import Player
 logger = logging.getLogger(__name__)
 
 class AllPlayers(BaseApi):
-  """Retrieves player data from Sleeper."""
   _cache = None
 
   def __init__(self, season: int, sport: str = "nfl"):

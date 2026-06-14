@@ -5,8 +5,6 @@ from .base_api import BaseApi
 logger = logging.getLogger(__name__)
 
 class Player(BaseApi):
-  """Retrieves player data from Sleeper."""
-
   def __init__(
       self,
       player_id: str,

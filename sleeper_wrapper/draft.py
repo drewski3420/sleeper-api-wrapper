@@ -17,6 +17,7 @@ class Draft(BaseApi):
     self.draft_start_time = datetime.fromtimestamp(self._data.get('start_time') / 1000)
     self.draft_type = self._data.get('type')
     self.scoring_type = self._data.get('metadata').get('scoring_type')
+
   def __str__(self):
     return f"{self.draft_type} type draft {self.draft_id} started {self.draft_start_time}, last pick {self.last_pick_time}"
 
