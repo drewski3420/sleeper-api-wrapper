@@ -33,6 +33,8 @@ class League(BaseApi):
     self.teams_by_roster_id ={team.roster_id: team for team in self.teams}
     self.drafts = self._get_drafts()
     self.all_players = None
+    self.sport_state = self._get_sport_state()
+    self.is_current_season = (1 if self.sport_state['league_season'] == self.season else 0 )
     self.transactions = {}
 
   def __str__(self):
@@ -88,6 +90,9 @@ class League(BaseApi):
           player['player'] = self.all_players.get_player(player['player_id'])
       r.append(matchup)
     return r
+
+  def _get_sport_state(self) -> dict:
+    return BaseApi()._call(f"https://api.sleeper.app/v1/state/{self.sport}")
 
   def get_transactions(self, week: int, transaction_type: str = "All") -> list[Transaction]:
     print(f"Getting transactions for Week {week}, current len is {sum(len(l) for l in self.transactions.values())}")
@@ -327,13 +332,3 @@ class League(BaseApi):
 #    pass
 
 
-#def get_sport_state(sport: str = "nfl") -> dict:
-#  """
-#  Returns info about the current state of the specified sport.
-#
-#  https://docs.sleeper.com/#get-nfl-state
-#
-#  Parameters:
-#    - sport: str: Options are "nfl", "nba", "lcs". Default "nfl".
-#  """
-#  return BaseApi()._call("https://api.sleeper.app/v1/state/{}".format(sport))
