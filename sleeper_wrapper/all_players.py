@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class AllPlayers(BaseApi):
   _cache = None
 
-  def __init__(self, season: int, sport: str = "nfl"):
+  def __init__(self, season: int, sport: str):
     self._sport = sport
     self._season = season
     self._filenames = {

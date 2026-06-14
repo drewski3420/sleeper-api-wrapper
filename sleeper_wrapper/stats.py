@@ -16,10 +16,10 @@ class Stats(BaseApi):
   standard scoring formats (standard, ppr, half ppr).
   """
 
-  def __init__(self):
+  def __init__(self, sport: str):
     """Initializes the instance for getting the stats."""
     logger.warning(warning_message)
-    self._sport = "nfl"
+    self._sport = sport
 
   def get_all_stats(self, season_type: str, season: int) -> dict:
     """Retrieves all statistics for the given season.

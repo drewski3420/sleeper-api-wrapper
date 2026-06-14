@@ -25,13 +25,13 @@ class User(BaseApi):
   def _get_data(self, initial_user_input: int) -> dict:
     return self.get_client().get_user(initial_user_input)
 
-  def get_all_leagues(self, season: int, sport: str = "nfl") -> list["League"]:
+  def get_all_leagues(self, season: int, sport: str) -> list["League"]:
     from .league import League
 
     leagues = self.get_client().get_user_leagues(self.user_id, sport, season)
     return [League(l.get('league_id')) for l in leagues]
 
-  def get_all_drafts(self, season: int, sport: str = "nfl") -> list["Draft"]:
+  def get_all_drafts(self, season: int, sport: str) -> list["Draft"]:
     from .draft import Draft
 
     drafts = self.get_client().get_user_drafts(self.user_id, sport, season)
