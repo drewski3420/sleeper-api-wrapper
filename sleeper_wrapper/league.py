@@ -28,6 +28,7 @@ class League(BaseApi):
     self.num_teams = self._data.get('total_rosters')
     self.league_status = self._data.get('status')
     self.league_name = self._data.get('name')
+    self.roster_positions = self._data.get('roster_positions')
 
     self.users: list["User"] = []
     self.users_by_id: dict[int, "User"] = {}
