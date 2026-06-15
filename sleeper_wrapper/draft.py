@@ -5,6 +5,7 @@ from .all_players import AllPlayers
 from .base_api import BaseApi
 from .pick import Pick
 from .player import Player
+from .stats import Stats
 
 if TYPE_CHECKING:
   from .team import Team
@@ -37,6 +38,9 @@ class Draft(BaseApi):
     self.draft_type = self._data.get('type')
     self.type = self.draft_type
     self.scoring_type = metadata.get('scoring_type')
+    self.season = self._data.get('season')
+    self.sport = self._data.get('sport') or "nfl"
+    self._projections_by_player_id: dict[str, dict] | None = None
 
   def __str__(self):
     return f"{self.draft_type} type draft {self.draft_id} started {self.draft_start_time}, last pick {self.last_pick_time}"
@@ -52,6 +56,12 @@ class Draft(BaseApi):
     picks = self.get_client().get_draft_traded_picks(self.draft_id)
     return [Pick(pick, self._users_by_id, self._teams_by_user_id) for pick in picks]
 
+  def _get_projections(self) -> dict[str, dict]:
+    if self._projections_by_player_id is None:
+      season = int(self.season) if self.season is not None else datetime.now().year
+      self._projections_by_player_id = Stats(self.sport).get_all_projections("regular", season)
+    return self._projections_by_player_id
+
   def get_top_available(self, position: list[str] = ["All"]) -> list[Player]:
     drafted_player_ids = {
       str(pick.player_id)
@@ -62,19 +72,20 @@ class Draft(BaseApi):
     sort_field = f"adp_{scoring_type}"
     available_players: list[Player] = []
     ranked_players = []
+    projections_by_player_id = self._get_projections()
 
     for player_id, player_data in self._all_players.players_by_id.items():
-      stats = player_data.get("stats") or {}
-      stats['ranked_val'] = (
-        stats.get(sort_field)
-        or stats.get("adp_std")
+      player_stats = projections_by_player_id.get(str(player_id)) or {}
+      ranked_val = (
+        player_stats.get(sort_field)
+        or player_stats.get("adp_std")
         or float("inf")
       )
-      ranked_players.append((player_id, player_data))
+      ranked_players.append((ranked_val, str(player_id), player_data, player_stats))
 
     ranked_players.sort(key=lambda player: player[0])
 
-    for player_id, player_data in ranked_players:
+    for _, player_id, player_data, player_stats in ranked_players:
       if player_id in drafted_player_ids:
         continue
 
@@ -82,7 +93,7 @@ class Draft(BaseApi):
         player_id=player_id,
         player_data={
           **player_data,
-          "stats": player_data.get("stats"),
+          "stats": player_stats,
         },
       )
 
