@@ -65,16 +65,16 @@ class Draft(BaseApi):
 
     for player_id, player_data in self._all_players.players_by_id.items():
       stats = player_data.get("stats") or {}
-      ranked_val = (
+      stats['ranked_val'] = (
         stats.get(sort_field)
         or stats.get("adp_std")
         or float("inf")
       )
-      ranked_players.append((ranked_val, player_id, player_data))
+      ranked_players.append((player_id, player_data))
 
     ranked_players.sort(key=lambda player: player[0])
 
-    for _, player_id, player_data in ranked_players:
+    for player_id, player_data in ranked_players:
       if player_id in drafted_player_ids:
         continue
 
