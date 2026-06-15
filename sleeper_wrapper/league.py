@@ -40,7 +40,7 @@ class League(BaseApi):
     self.is_current_season = 0
     self.transactions: dict[int, list["Transaction"]] = {}
 
-    from .league_assembler import LeagueAssembler
+    from .assembler import LeagueAssembler
 
     LeagueAssembler(self.get_client()).assemble_league(self)
 
@@ -60,12 +60,12 @@ class League(BaseApi):
     return r
 
   def get_week_matchups(self, week: int) -> list["Matchup"]:
-    from .league_assembler import LeagueAssembler
+    from .assembler import LeagueAssembler
 
     return LeagueAssembler(self.get_client()).assemble_week_matchups(self, week)
 
   def _get_transactions(self, week: int, transaction_type: str = "All") -> list["Transaction"]:
-    from .league_assembler import LeagueAssembler
+    from .assembler import LeagueAssembler
 
     if week not in self.transactions:
       self.transactions[week] = LeagueAssembler(self.get_client()).assemble_transactions(self, week)

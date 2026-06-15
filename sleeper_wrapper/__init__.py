@@ -3,7 +3,7 @@ from .api_client import SleeperApiClient
 from .base_api import BaseApi
 from .draft import Draft
 from .league import League
-from .league_assembler import LeagueAssembler
+from .assembler import LeagueAssembler
 from .matchup import Matchup
 from .player import Player
 from .user import User
