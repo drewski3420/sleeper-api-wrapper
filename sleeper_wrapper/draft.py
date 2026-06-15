@@ -1,8 +1,10 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from .all_players import AllPlayers
 from .base_api import BaseApi
 from .pick import Pick
+from .player import Player
 
 if TYPE_CHECKING:
   from .team import Team
@@ -15,10 +17,16 @@ class Draft(BaseApi):
       draft_id: int,
       users_by_id: dict[int, "User"],
       teams_by_user_id: dict[int, "Team"],
+      season: int | None = None,
+      sport: str | None = None,
+      all_players: AllPlayers | None = None,
   ) -> None:
     self.draft_id = int(draft_id)
     self._users_by_id = users_by_id
     self._teams_by_user_id = teams_by_user_id
+    self._season = season
+    self._sport = sport
+    self._all_players = all_players
 
     self.picks = self._get_all_picks()
     self.traded_picks = self._get_traded_picks()
@@ -47,6 +55,58 @@ class Draft(BaseApi):
   def _get_traded_picks(self) -> list[Pick]:
     picks = self.get_client().get_draft_traded_picks(self.draft_id)
     return [Pick(pick, self._users_by_id, self._teams_by_user_id) for pick in picks]
+
+  def _get_all_players(self) -> AllPlayers:
+    if self._all_players is not None:
+      return self._all_players
+
+    if self._season is None or self._sport is None:
+      raise ValueError("Draft.get_top_available() requires season and sport context.")
+
+    self._all_players = AllPlayers(season=self._season, sport=self._sport)
+    return self._all_players
+
+  def get_top_available(self, sort_by: str, position: list[str] = ["All"]) -> list[Player]:
+    all_players = self._get_all_players()
+    drafted_player_ids = {
+      str(pick.player_id)
+      for pick in self.picks
+      if pick.player_id is not None
+    }
+    sort_field = f"adp_{sort_by}"
+    available_players: list[Player] = []
+    ranked_players = []
+
+    for player_id, player_data in all_players.players_by_id.items():
+      stats = player_data.get("stats") or {}
+      ranked_val = (
+        stats.get(sort_field)
+        or stats.get("adp_std")
+        or float("inf")
+      )
+      ranked_players.append((ranked_val, player_id, player_data))
+
+    ranked_players.sort(key=lambda player: player[0])
+
+    for _, player_id, player_data in ranked_players:
+      if player_id in drafted_player_ids:
+        continue
+
+      player = Player(
+        player_id=player_id,
+        player_data={
+          **player_data,
+          "stats": player_data.get("stats"),
+        },
+      )
+
+      if position[0] == 'All' or player.position in position:
+        available_players.append(player)
+
+      if len(available_players) >= 40:
+        break
+
+    return available_players
 
   def get_roster_counts(self) -> dict[str | None, dict[str | None, int]]:
     counts = {}
