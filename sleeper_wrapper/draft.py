@@ -52,13 +52,14 @@ class Draft(BaseApi):
     picks = self.get_client().get_draft_traded_picks(self.draft_id)
     return [Pick(pick, self._users_by_id, self._teams_by_user_id) for pick in picks]
 
-  def get_top_available(self, sort_by: str, position: list[str] = ["All"]) -> list[Player]:
+  def get_top_available(self, position: list[str] = ["All"]) -> list[Player]:
     drafted_player_ids = {
       str(pick.player_id)
       for pick in self.picks
       if pick.player_id is not None
     }
-    sort_field = f"adp_{sort_by}"
+    scoring_type = self.scoring_type or "std"
+    sort_field = f"adp_{scoring_type}"
     available_players: list[Player] = []
     ranked_players = []
 
