@@ -1,3 +1,5 @@
+"""Draft models and helpers."""
+
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -12,6 +14,8 @@ if TYPE_CHECKING:
 
 
 class Draft(BaseApi):
+  """Represent a Sleeper draft."""
+
   def __init__(
       self,
       draft_id: int,
@@ -19,6 +23,14 @@ class Draft(BaseApi):
       teams_by_user_id: dict[int, "Team"],
       all_players: AllPlayers,
   ) -> None:
+    """Initialize a draft.
+
+    Args:
+      draft_id: Draft id to load.
+      users_by_id: User mapping keyed by user id.
+      teams_by_user_id: Team mapping keyed by user id.
+      all_players: Player lookup helper.
+    """
     self.draft_id = int(draft_id)
     self._users_by_id = users_by_id
     self._teams_by_user_id = teams_by_user_id
@@ -41,20 +53,44 @@ class Draft(BaseApi):
     self.sport = self._data.get('sport') or "nfl"
 
   def __str__(self):
+    """Return a readable draft summary."""
     return f"{self.draft_type} type draft {self.draft_id} started {self.draft_start_time}, last pick {self.last_pick_time}"
 
   def _get_draft(self) -> dict:
+    """Fetch draft metadata.
+
+    Returns:
+      Draft payload.
+    """
     return self.get_client().get_draft(self.draft_id)
 
   def _get_all_picks(self) -> list[Pick]:
+    """Fetch all picks for the draft.
+
+    Returns:
+      Pick objects for the draft.
+    """
     picks = self.get_client().get_draft_picks(self.draft_id)
     return [Pick(pick, self._users_by_id, self._teams_by_user_id) for pick in picks]
 
   def _get_traded_picks(self) -> list[Pick]:
+    """Fetch traded picks for the draft.
+
+    Returns:
+      Pick objects for traded picks.
+    """
     picks = self.get_client().get_draft_traded_picks(self.draft_id)
     return [Pick(pick, self._users_by_id, self._teams_by_user_id) for pick in picks]
 
   def get_top_available(self, position: list[str] = ["All"]) -> list[Player]:
+    """Get top available players by ADP.
+
+    Args:
+      position: Positions to include, or ["All"].
+
+    Returns:
+      Up to 40 available players.
+    """
     drafted_player_ids = {
       str(pick.player_id)
       for pick in self.picks
@@ -98,6 +134,11 @@ class Draft(BaseApi):
     return available_players
 
   def get_roster_counts(self) -> dict[str | None, dict[str | None, int]]:
+    """Count drafted positions by roster.
+
+    Returns:
+      Nested counts keyed by team name and position.
+    """
     counts = {}
 
     for p in self.picks:

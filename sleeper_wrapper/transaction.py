@@ -1,12 +1,28 @@
+"""Transaction models."""
+
 from datetime import datetime
 
 class TransactionPlayer:
+  """Represent a player moved in a transaction."""
+
   def __init__(self, player_id: int):
+    """Initialize a transaction player.
+
+    Args:
+      player_id: Player id involved in the transaction.
+    """
     self.player_id = int(player_id)
     self.player_obj = None
 
 class TransactionPick:
+  """Represent a draft pick moved in a transaction."""
+
   def __init__(self, data: dict):
+    """Initialize a transaction pick.
+
+    Args:
+      data: Raw draft pick transaction payload.
+    """
     self._data = data
     self.round_number = self._data['round']
     self.season = int(self._data['season'])
@@ -14,11 +30,19 @@ class TransactionPick:
     self.new_roster_id = int(self._data['owner_id'])
 
 class TransactionTeam:
+  """Represent one team in a transaction."""
+
   def __init__(
       self,
       team_num: str,
       roster_id: int
   ):
+    """Initialize a transaction team.
+
+    Args:
+      team_num: Label for the team in the transaction.
+      roster_id: Roster id for the team.
+    """
     self.team_num = team_num
     self.roster_id = int(roster_id)
 
@@ -34,7 +58,14 @@ class TransactionTeam:
 #    return f"{self.team_num}: {self.roster_id}"
 
 class Transaction:
+  """Represent a generic league transaction."""
+
   def __init__(self, data: dict):
+    """Initialize a transaction.
+
+    Args:
+      data: Raw transaction payload.
+    """
     self._data = data
     self.transaction_id = int(data.get("transaction_id"))
     self.transaction_type = data.get("type")
@@ -65,6 +96,7 @@ class Transaction:
     self._populate_picks()
 
   def _populate_picks(self) -> None:
+    """Attach moved picks to transaction teams."""
     for p in self._data.get('draft_picks', []):
       pick = TransactionPick(p)
 
@@ -75,11 +107,13 @@ class Transaction:
         self.teams_by_roster_id[pick.old_roster_id].picks_lost.append(pick)
 
   def _populate_drops(self) -> None:
+    """Attach dropped players to transaction teams."""
     for player_id, roster_id in self.drops.items():
       if roster_id in self.teams_by_roster_id:
         self.teams_by_roster_id[roster_id].players_dropped.append(TransactionPlayer(player_id))
 
   def _populate_adds(self) -> None:
+    """Attach added players to transaction teams."""
     for player_id, roster_id in self.adds.items():
       if roster_id in self.teams_by_roster_id:
         self.teams_by_roster_id[roster_id].players_added.append(TransactionPlayer(player_id))
@@ -91,7 +125,14 @@ class Transaction:
 #    )
 
 class Trade(Transaction):
+  """Represent a trade transaction."""
+
   def __init__(self, data: dict):
+    """Initialize a trade.
+
+    Args:
+      data: Raw transaction payload.
+    """
     super().__init__(data)
 
     self.draft_picks = data.get("draft_picks", [])
@@ -109,7 +150,14 @@ class Trade(Transaction):
 #    )
 
 class FreeAgent(Transaction):
+  """Represent a free agent transaction."""
+
   def __init__(self, data: dict):
+    """Initialize a free agent transaction.
+
+    Args:
+      data: Raw transaction payload.
+    """
     super().__init__(data)
 
 #  #Free Agent has no additional properties
@@ -123,7 +171,14 @@ class FreeAgent(Transaction):
 
 
 class Waiver(Transaction):
+  """Represent a waiver transaction."""
+
   def __init__(self, data: dict):
+    """Initialize a waiver transaction.
+
+    Args:
+      data: Raw transaction payload.
+    """
     super().__init__(data)
 
     self.added_player_ids = list((self.adds or {}).keys())

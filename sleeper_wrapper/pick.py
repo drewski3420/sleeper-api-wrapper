@@ -1,3 +1,5 @@
+"""Draft pick model."""
+
 from typing import TYPE_CHECKING
 
 from .player import Player
@@ -8,12 +10,21 @@ if TYPE_CHECKING:
 
 
 class Pick:
+  """Represent a draft pick."""
+
   def __init__(
       self,
       data: dict,
       users_by_id: dict[int, "User"],
       teams_by_user_id: dict[int, "Team"],
   ):
+    """Initialize a draft pick.
+
+    Args:
+      data: Raw pick payload.
+      users_by_id: User mapping keyed by user id.
+      teams_by_user_id: Team mapping keyed by user id.
+    """
     self._users_by_id = users_by_id
     self._teams_by_user_id = teams_by_user_id
     self._data = data
@@ -30,23 +41,44 @@ class Pick:
     self.round = self._data.get('round')
 
   def __str__(self):
+    """Return a readable pick summary."""
     return f"Round: {self.round} Pick: {self.round_pick_number} (Overall {self.pick_no}) by {self.team_name}"
 
   def _get_player(self) -> Player:
+    """Build the picked player object.
+
+    Returns:
+      Player for the pick.
+    """
     return Player(self.player_id or "", self.player_data)
 
   def _get_round_pick_number(self) -> int:
+    """Compute the pick number within the round.
+
+    Returns:
+      Pick number within the round.
+    """
     team_count = len(self._teams_by_user_id)
     if team_count == 0 or self.pick_no is None:
       return 0
     return ((self.pick_no - 1) % team_count) + 1
 
   def _get_pick_user(self) -> "User | None":
+    """Resolve the picking user.
+
+    Returns:
+      User for the pick, if available.
+    """
     if self.picked_by_user_id is None:
       return None
     return self._users_by_id.get(self.picked_by_user_id)
 
   def _get_pick_team(self) -> "Team | None":
+    """Resolve the picking team.
+
+    Returns:
+      Team for the pick, if available.
+    """
     if self.picked_by_user_id is None:
       return None
     return self._teams_by_user_id.get(self.picked_by_user_id)

@@ -1,3 +1,5 @@
+"""Stats and projections helpers."""
+
 import logging
 
 from sleeper_wrapper.base_api import BaseApi
@@ -8,131 +10,88 @@ warning_message = "The Stats API is no longer included in Sleeper's documentatio
 
 
 class Stats(BaseApi):
-  """Retrieves stats and projections from Sleeper's stats provider.
-
-  Can retrieve stats and projections for Sleeper, though it is no longer
-  officially documented and supported. Both stats and projections include
-  box score and detailed stats as well as rollups to fantasy scores in
-  standard scoring formats (standard, ppr, half ppr).
-  """
+  """Retrieve stats and projections from Sleeper."""
 
   def __init__(self, sport: str):
-    """Initializes the instance for getting the stats."""
+    """Initialize stats access.
+
+    Args:
+      sport: Sport key to query.
+    """
     logger.warning(warning_message)
     self._sport = sport
 
   def get_all_stats(self, season_type: str, season: int) -> dict:
-    """Retrieves all statistics for the given season.
+    """Retrieve season stats.
 
-    It supports detailed data going back until 2010 before only providing
-    ranks for the various scoring formats. The detailed data contains information
-    such as passing yards per attempt, field goal makes and misses by 10 yard
-    buckets, snaps played, red zone statistics, and more.
-
-    Arguments:
-      season_type: str
-        The type of season for pulling the stats. Supports "regular", "pre",
-        and "post".
-      season: int
-        The year of the season for pulling the stats.
+    Args:
+      season_type: Season type to query.
+      season: Season year to query.
 
     Returns:
-      A dictionary with each player and their statistics for the season.
+      Stats keyed by player.
     """
     return self.get_client().get_stats(self._sport, season_type, season)
 
   def get_week_stats(self, season_type: str, season: int, week: int) -> dict:
-    """Retrieves all statistics for the given season and week.
+    """Retrieve weekly stats.
 
-    It supports detailed data going back until 2010 before only providing
-    ranks for the various scoring formats. The detailed data contains information
-    such as passing yards per attempt, field goal makes and misses by 10 yard
-    buckets, snaps played, red zone statistics, and more.
-
-    Arguments:
-      season_type: str
-        The type of season for pulling the stats. Supports "regular", "pre",
-        and "post".
-      season: int
-        The year of the season for pulling the stats.
-      week: int
-        The week of the season for pulling the stats.
+    Args:
+      season_type: Season type to query.
+      season: Season year to query.
+      week: Week number to query.
 
     Returns:
-      A dictionary with each player and their statistics for the season's week.
+      Stats keyed by player.
     """
     return self.get_client().get_week_stats(self._sport, season_type, season, week)
 
   def get_all_projections(self, season_type: str, season: int) -> dict:
-    """Retrieves all projections for the given season.
+    """Retrieve season projections.
 
-    It supports data going back until 2018 and contains information such as
-    passing yards per attempt, field goal makes and misses by 10 yard buckets,
-    ADP, games played, and more.
-
-    Arguments:
-      season_type: str
-        The type of season for pulling the projections. Supports "regular",
-        "pre", and "post".
-      season: int
-        The year of the season for pulling the projections.
+    Args:
+      season_type: Season type to query.
+      season: Season year to query.
 
     Returns:
-      A dictionary with each player and their projections for the year.
+      Projections keyed by player.
     """
     return self.get_client().get_projections(self._sport, season_type, season)
 
   def get_week_projections(self, season_type: str, season: int, week: int) -> dict:
-    """Retrieves all projections for the given season and week.
+    """Retrieve weekly projections.
 
-    It supports data going back until 2018 and contains information such as
-    passing yards per attempt, field goal makes and misses by 10 yard buckets,
-    ADP, games played, and more.
-
-    Arguments:
-      season_type: str
-        The type of season for pulling the projections. Supports "regular",
-        "pre", and "post".
-      season: int
-        The year of the season for pulling the projections.
-      week: int
-        The week of the season for pulling the projections.
+    Args:
+      season_type: Season type to query.
+      season: Season year to query.
+      week: Week number to query.
 
     Returns:
-      A dictionary with each player and their projections for the year.
+      Projections keyed by player.
     """
     return self.get_client().get_week_projections(self._sport, season_type, season, week)
 
   def get_player_week_stats(self, stats: dict, player_id: str) -> dict | None:
-    """Gets a player's stats or projections from the given dictionary.
+    """Get player stats from a stats dictionary.
 
-    Arguments:
-      stats: dict
-        Either stats or projections returned by the API. Can be for the whole
-        season or a single week.
-      player_id: str
-        The ID for the player of interest.
+    Args:
+      stats: Stats or projections dictionary.
+      player_id: Player id to look up.
 
     Returns:
-      A dictionary of the player's stats or projections for the time period
-      associated with the dictionary provided to the function.
+      Player stats if present.
     """
-
     return stats.get(player_id, None)
 
   def get_player_week_score(self, stats: dict, player_id: str) -> dict | None:
-    """Retrieves a player's points scored for the primary scoring formats.
+    """Get primary fantasy scores for a player.
 
-    Arguments:
-      stats: dict
-        Either stats or projections returned by the API. Can be for the whole
-        season or a single week.
-      player_id: str
-        The ID for the player of interest.
+    Args:
+      stats: Stats or projections dictionary.
+      player_id: Player id to look up.
 
     Returns:
-      A dictionary with the points scored for standard, PPR, and half PPR
-      scoring formats.
+      Primary scoring values if present.
     """
     result_dict = {}
     player_stats = stats.get(player_id, None)

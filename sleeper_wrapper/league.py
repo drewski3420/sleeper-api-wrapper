@@ -1,3 +1,5 @@
+"""League model and related fetch helpers."""
+
 from __future__ import annotations
 
 from collections import defaultdict
@@ -14,7 +16,14 @@ if TYPE_CHECKING:
 
 
 class League(BaseApi):
+  """Represent a Sleeper league."""
+
   def __init__(self, league_id: int) -> None:
+    """Initialize a league.
+
+    Args:
+      league_id: League id to load.
+    """
     self.league_id = int(league_id)
     self._data = self._get_data()
 
@@ -46,12 +55,23 @@ class League(BaseApi):
     LeagueAssembler(self.get_client()).assemble_league(self)
 
   def __str__(self):
+    """Return a readable league summary."""
     return f"{self.num_teams} Team League: {self.league_name} (ID {self.league_id})"
 
   def _get_data(self) -> dict:
+    """Fetch league metadata.
+
+    Returns:
+      League payload.
+    """
     return self.get_client().get_league(self.league_id)
 
   def get_results(self) -> dict[int, list["Matchup"]]:
+    """Fetch matchups for all scored weeks.
+
+    Returns:
+      Matchups keyed by week.
+    """
     r = defaultdict()
     if self.first_week is None or self.most_recent_week is None:
       return r
@@ -61,11 +81,28 @@ class League(BaseApi):
     return r
 
   def get_week_matchups(self, week: int) -> list["Matchup"]:
+    """Fetch matchups for a week.
+
+    Args:
+      week: Week number to load.
+
+    Returns:
+      Matchup objects for the week.
+    """
     from .assembler import LeagueAssembler
 
     return LeagueAssembler(self.get_client()).assemble_week_matchups(self, week)
 
   def _get_transactions(self, week: int, transaction_type: str = "All") -> list["Transaction"]:
+    """Fetch filtered transactions for a week.
+
+    Args:
+      week: Week number to load.
+      transaction_type: Transaction type to include, or "All".
+
+    Returns:
+      Matching transaction objects.
+    """
     from .assembler import LeagueAssembler
 
     if week not in self.transactions:
@@ -74,10 +111,34 @@ class League(BaseApi):
     return [t for t in self.transactions[week] if transaction_type in [t.transaction_type, "All"]]
 
   def get_trades(self, week: int) -> list:
+    """Fetch trade transactions for a week.
+
+    Args:
+      week: Week number to load.
+
+    Returns:
+      Trade transactions.
+    """
     return self._get_transactions(week, "trade")
 
   def get_waivers(self, week: int) -> list:
+    """Fetch waiver transactions for a week.
+
+    Args:
+      week: Week number to load.
+
+    Returns:
+      Waiver transactions.
+    """
     return self._get_transactions(week, "waiver")
 
   def get_free_agents(self, week: int) -> list:
+    """Fetch free agent transactions for a week.
+
+    Args:
+      week: Week number to load.
+
+    Returns:
+      Free agent transactions.
+    """
     return self._get_transactions(week, "free_agent")
