@@ -44,6 +44,7 @@ class LeagueAssembler:
         team_entry.team_obj = league.teams_by_roster_id.get(team_entry.roster_id)
         for matchup_player in team_entry.players_with_points:
           matchup_player.player_obj = all_players.get_player(matchup_player.player_id)
+        team_entry.sort_players_by_position()
       results.append(matchup)
 
     return results

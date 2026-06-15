@@ -1,3 +1,36 @@
+POSITION_ORDER = {
+  "QB": 0,
+  "RB": 1,
+  "WR": 2,
+  "TE": 3,
+  "FLEX": 4,
+  "SUPERFLEX": 5,
+}
+
+FLEX_POSITIONS = {"WR", "RB", "TE"}
+SUPERFLEX_POSITIONS = {"WR", "RB", "TE", "QB"}
+
+
+def get_position_sort_key(player) -> tuple[int, str]:
+  player_obj = getattr(player, "player_obj", None)
+  position = getattr(player_obj, "position", None)
+
+  if position == "QB":
+    return (POSITION_ORDER["QB"], position)
+  if position == "RB":
+    return (POSITION_ORDER["RB"], position)
+  if position == "WR":
+    return (POSITION_ORDER["WR"], position)
+  if position == "TE":
+    return (POSITION_ORDER["TE"], position)
+  if position in FLEX_POSITIONS:
+    return (POSITION_ORDER["FLEX"], position)
+  if position in SUPERFLEX_POSITIONS:
+    return (POSITION_ORDER["SUPERFLEX"], position)
+
+  return (999, position or "")
+
+
 class MatchupPlayer:
   def __init__(self, player_id: str, points: float, starters: list[str]):
     self.player_id = player_id
@@ -29,7 +62,11 @@ class MatchupTeam:
     for player_id, points in players_points.items():
       players.append(MatchupPlayer(player_id=player_id, points=points, starters=starters))
 
+    players.sort(key=get_position_sort_key)
     return players
+
+  def sort_players_by_position(self) -> None:
+    self.players_with_points.sort(key=get_position_sort_key)
 
   def __str__(self):
     return str(self.__dict__)
