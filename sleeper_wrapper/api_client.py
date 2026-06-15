@@ -8,6 +8,7 @@ import requests
 class SleeperApiClient:
   def __init__(self, base_url: str = "https://api.sleeper.app/v1") -> None:
     self.base_url = base_url.rstrip("/")
+    self.root_url = self.base_url.removesuffix("/v1")
 
   def get(self, url: str) -> Any:
     response = requests.get(url)
@@ -17,6 +18,10 @@ class SleeperApiClient:
   def get_by_path(self, path: str) -> Any:
     normalized_path = path.lstrip("/")
     return self.get(f"{self.base_url}/{normalized_path}")
+
+  def get_by_root_path(self, path: str) -> Any:
+    normalized_path = path.lstrip("/")
+    return self.get(f"{self.root_url}/{normalized_path}")
 
   def get_user(self, user_input: int) -> dict:
     return self.get_by_path(f"user/{user_input}")
@@ -57,8 +62,9 @@ class SleeperApiClient:
   def get_sport_state(self, sport: str) -> dict:
     return self.get_by_path(f"state/{sport}")
 
-  def get_players(self, sport: str) -> dict:
-    return self.get_by_path(f"players/{sport}")
+  def get_players(self, sport: str, season: str) -> dict:
+#    return self.get_by_path(f"players/{sport}")
+    return self.get_by_root_path(f"projections/{sport}/{season}?season_type=regular")
 
   def get_stats(self, sport: str, season_type: str, season: int) -> dict:
     return self.get_by_path(f"stats/{sport}/{season_type}/{season}")

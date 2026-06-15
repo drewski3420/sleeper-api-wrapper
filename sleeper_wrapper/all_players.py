@@ -28,10 +28,11 @@ class AllPlayers(BaseApi):
       self._populate_file()
 
     with open(self._filename, 'r') as f:
-      return json.loads(f.read())
+      data = json.loads(f.read())
+      return { f['player_id']: f for f in data}
 
   def _populate_file(self) -> None:
-    data = self.get_client().get_players(self._sport)
+    data = self.get_client().get_players(self._sport, self._season)
 
     with open(self._filename, 'w') as f:
       f.write(json.dumps(data, indent=2))
@@ -44,46 +45,12 @@ class AllPlayers(BaseApi):
       logger.warning("Player id %s not found for sport=%s season=%s", player_id, self._sport, self._season)
       return Player(player_id, {})
 
-    normalized_player_data = {
-      **player_data,
-      "stats": player_data.get("stats"),
-    }
-    return Player(player_id, normalized_player_data)
+    if "player" in player_data.keys():
+      p = player_data.pop("player")
+      player_data.update(p)
 
-  def get_top_available(self, already_drafted_ids: list[int], sort_by: str, position: list[str] = ["All"]) -> list[Player]:
-    limit = 40
-    drafted_player_ids = {str(player_id) for player_id in already_drafted_ids}
-    sort_field = f"adp_{sort_by}"
-    available_players: list[Player] = []
+    return Player(
+      player_id=player_id,
+      player_data=player_data,
+    )
 
-    ranked_players = []
-    for player_id, player_data in self.players_by_id.items():
-      stats = player_data.get("stats") or {}
-      ranked_val = (
-        stats.get(sort_field)
-        or stats.get("adp_std")
-        or float("inf")
-      )
-      ranked_players.append((ranked_val, player_id, player_data))
-
-    ranked_players.sort(key=lambda player: player[0])
-
-    for _, player_id, player_data in ranked_players:
-      if player_id in drafted_player_ids:
-        continue
-
-      player = Player(
-        player_id=player_id,
-        player_data={
-          **player_data,
-          "stats": player_data.get("stats"),
-        },
-      )
-
-      if position[0] == 'All' or player.position in position:
-        available_players.append(player)
-
-      if len(available_players) >= limit:
-        break
-
-    return available_players
