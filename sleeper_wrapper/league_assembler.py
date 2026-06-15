@@ -73,14 +73,14 @@ class LeagueAssembler:
   def _enrich_transaction(self, transaction: Transaction, league, all_players: AllPlayers) -> None:
     for transaction_team in transaction.teams:
       team = league.teams_by_roster_id.get(transaction_team.roster_id)
-      transaction_team.team = team
-      transaction_team.user = team.user if team else None
+      transaction_team.team_obj = team
+      transaction_team.user_obj = team.user if team else None
 
       for transaction_player in transaction_team.players_added:
-        transaction_player.player = all_players.get_player(transaction_player.player_id)
+        transaction_player.player_obj = all_players.get_player(transaction_player.player_id)
 
       for transaction_player in transaction_team.players_dropped:
-        transaction_player.player = all_players.get_player(transaction_player.player_id)
+        transaction_player.player_obj = all_players.get_player(transaction_player.player_id)
 
   def _get_all_players(self, league) -> AllPlayers:
     if league.all_players is None:
@@ -97,7 +97,7 @@ class LeagueAssembler:
 
     for team in teams_data:
       owner_id = team.get("owner_id")
-      team['user'] = users_by_id.get(int(owner_id)) if owner_id is not None else None
+      team['user_obj'] = users_by_id.get(int(owner_id)) if owner_id is not None else None
       teams.append(Team(team))
 
     return teams

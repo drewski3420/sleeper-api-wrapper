@@ -5,7 +5,7 @@ class Team:
   def __init__(self, data: dict):
     self._data = data
     self.roster_id = int(self._data.get('roster_id'))
-    self.user: User | None = self._data.get('user')
+    self.user_obj: User | None = self._data.get('user')
     self.team_name = self._get_team_name()
 
   def _get_team_name(self) -> str:

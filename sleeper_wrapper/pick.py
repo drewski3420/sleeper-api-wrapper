@@ -23,9 +23,9 @@ class Pick:
     picked_by = self._data.get('picked_by')
     self.picked_by_user_id = int(picked_by) if picked_by is not None else None
     self.round_pick_number = self._get_round_pick_number()
-    self.player = self._get_player()
-    self.user = self._get_pick_user()
-    self.team = self._get_pick_team()
+    self.player_obj = self._get_player()
+    self.user_obj = self._get_pick_user()
+    self.team_obj = self._get_pick_team()
     self.team_name = self.team.team_name if self.team else None
     self.round = self._data.get('round')
 

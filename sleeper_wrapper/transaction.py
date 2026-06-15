@@ -1,24 +1,9 @@
 from datetime import datetime
 
-
-"""
-'created': 1757458201289, 
-'settings': {'seq': 4, 'waiver_bid': 0}, 
-'leg': 1, 
-'draft_picks': [], 
-'creator': '606232341194534912', 
-'transaction_id': '1271275473288040448', 
-'adds': {'12472': 5}, 
-'drops': None, 
-'consenter_ids': [5], 
-'roster_ids': [5], 
-'status_updated': 1757577658636, 
-'waiver_budget': []
-"""
 class TransactionPlayer:
   def __init__(self, player_id: int):
     self.player_id = int(player_id)
-    self.player = None
+    self.player_obj = None
 
 class TransactionPick:
   def __init__(self, data: dict):
@@ -38,8 +23,8 @@ class TransactionTeam:
     self.roster_id = int(roster_id)
 
     # populate later
-    self.team = None
-    self.user = None
+    self.team_obj = None
+    self.user_obj = None
     self.players_added = []
     self.players_dropped = []
     self.picks_added = []

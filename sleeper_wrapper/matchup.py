@@ -4,13 +4,13 @@ class MatchupPlayer:
     self.points = points
     self.is_starter = 1 if player_id in starters else 0
     self.is_bench = 1 if player_id not in starters else 0
-    self.player = None
+    self.player_obj = None
 
   def __str__(self):
     return str(self.__dict__)
 
 
-class TeamEntry:
+class MatchupTeam:
   def __init__(self, data: dict):
     self._data = data
     self.roster_id = int(self._data["roster_id"])
@@ -39,12 +39,13 @@ class Matchup:
   def __init__(self, matchup_id: int, data: list[dict]):
     self._data = data
     self.matchup_id = int(matchup_id)
-    self.teams = [TeamEntry(e) for e in data]
+    self.teams = [MatchupTeam(e) for e in data]
     self.winning_roster_id = None
     self.losing_roster_id = None
     self.winning_team = None
     self.losing_team = None
     self._determine_outcome()
+    self.teams = [self.winning_team, self.losing_team]
 
   def _determine_outcome(self) -> None:
     if len(self.teams) < 2:

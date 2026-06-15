@@ -53,7 +53,7 @@ class Draft(BaseApi):
 
     for p in self.picks:
       roster_id = p.team_name
-      position = p.player.position
+      position = p.player_obj.position
 
       counts.setdefault(roster_id, {})
       counts[roster_id][position] = counts[roster_id].get(position, 0) + 1
