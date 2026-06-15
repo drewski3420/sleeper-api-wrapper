@@ -17,15 +17,11 @@ class Draft(BaseApi):
       draft_id: int,
       users_by_id: dict[int, "User"],
       teams_by_user_id: dict[int, "Team"],
-      season: int | None = None,
-      sport: str | None = None,
-      all_players: AllPlayers | None = None,
+      all_players: AllPlayers,
   ) -> None:
     self.draft_id = int(draft_id)
     self._users_by_id = users_by_id
     self._teams_by_user_id = teams_by_user_id
-    self._season = season
-    self._sport = sport
     self._all_players = all_players
 
     self.picks = self._get_all_picks()
@@ -56,18 +52,7 @@ class Draft(BaseApi):
     picks = self.get_client().get_draft_traded_picks(self.draft_id)
     return [Pick(pick, self._users_by_id, self._teams_by_user_id) for pick in picks]
 
-  def _get_all_players(self) -> AllPlayers:
-    if self._all_players is not None:
-      return self._all_players
-
-    if self._season is None or self._sport is None:
-      raise ValueError("Draft.get_top_available() requires season and sport context.")
-
-    self._all_players = AllPlayers(season=self._season, sport=self._sport)
-    return self._all_players
-
   def get_top_available(self, sort_by: str, position: list[str] = ["All"]) -> list[Player]:
-    all_players = self._get_all_players()
     drafted_player_ids = {
       str(pick.player_id)
       for pick in self.picks
@@ -77,7 +62,7 @@ class Draft(BaseApi):
     available_players: list[Player] = []
     ranked_players = []
 
-    for player_id, player_data in all_players.players_by_id.items():
+    for player_id, player_data in self._all_players.players_by_id.items():
       stats = player_data.get("stats") or {}
       ranked_val = (
         stats.get(sort_field)

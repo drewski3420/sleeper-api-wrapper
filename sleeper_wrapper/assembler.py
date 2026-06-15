@@ -27,8 +27,6 @@ class LeagueAssembler:
       league.league_id,
       league.users_by_id,
       league.teams_by_user_id,
-      league.season,
-      league.sport,
       all_players,
     )
 
@@ -116,8 +114,6 @@ class LeagueAssembler:
       league_id,
       users_by_id,
       teams_by_user_id,
-      season,
-      sport,
       all_players,
   ) -> list[Draft]:
     drafts = self.client.get_league_drafts(league_id)
@@ -126,8 +122,6 @@ class LeagueAssembler:
         int(draft.get('draft_id')),
         users_by_id,
         teams_by_user_id,
-        season=season,
-        sport=sport,
         all_players=all_players,
       )
       for draft in drafts
