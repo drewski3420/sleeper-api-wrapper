@@ -81,7 +81,7 @@ class Matchup:
         " def. ".join(
           [
             f"{t.team_obj.team_name if t.team_obj else t.roster_id} ({t.points})"
-            for t in [self.winning_team, self.losing_team]
+            for t in self.teams
           ]
         )
       )

@@ -19,7 +19,7 @@ class LeagueAssembler:
     league.users_by_id = {user.user_id: user for user in league.users}
 
     league.teams = self._get_teams(league.league_id, league.users_by_id)
-    league.teams_by_user_id = {team.user.user_id: team for team in league.teams if team.user}
+    league.teams_by_user_id = {team.user_obj.user_id: team for team in league.teams if team.user_obj}
     league.teams_by_roster_id = {team.roster_id: team for team in league.teams}
 
     league.drafts = self._get_drafts(league.league_id, league.users_by_id, league.teams_by_user_id)
@@ -43,7 +43,7 @@ class LeagueAssembler:
       for team_entry in matchup.teams:
         team_entry.team_obj = league.teams_by_roster_id.get(team_entry.roster_id)
         for matchup_player in team_entry.players_with_points:
-          matchup_player.player = all_players.get_player(matchup_player.player_id)
+          matchup_player.player_obj = all_players.get_player(matchup_player.player_id)
       results.append(matchup)
 
     return results
