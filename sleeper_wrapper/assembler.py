@@ -62,6 +62,7 @@ class LeagueAssembler:
     results = []
 
     matchup_data = self.client.get_league_matchups(league.league_id, week)
+
     matchup_data = sorted(matchup_data, key=lambda m: m['matchup_id'])
 
     for matchup_entry in matchup_data:
@@ -120,7 +121,7 @@ class LeagueAssembler:
     for transaction_team in transaction.teams:
       team = league.teams_by_roster_id.get(transaction_team.roster_id)
       transaction_team.team_obj = team
-      transaction_team.user_obj = team.user if team else None
+      transaction_team.user_obj = team.user_obj if team else None
 
       for transaction_player in transaction_team.players_added:
         transaction_player.player_obj = all_players.get_player(transaction_player.player_id)
