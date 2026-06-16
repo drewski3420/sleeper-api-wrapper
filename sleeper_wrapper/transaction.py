@@ -11,7 +11,7 @@ class TransactionPlayer:
     Args:
       player_id: Player id involved in the transaction.
     """
-    self.player_id = int(player_id)
+    self.player_id = player_id
     self.player_obj = None
 
 class TransactionPick:
@@ -89,8 +89,8 @@ class Transaction:
     ]
     self.teams_by_roster_id = {team.roster_id: team for team in self.teams}
 
-    self.adds = {int(player_id): int(roster_id) for player_id, roster_id in (data.get("adds") or {}).items()}
-    self.drops = {int(player_id): int(roster_id) for player_id, roster_id in (data.get("drops") or {}).items()}
+    self.adds = {player_id: int(roster_id) for player_id, roster_id in (data.get("adds") or {}).items()}
+    self.drops = {player_id: int(roster_id) for player_id, roster_id in (data.get("drops") or {}).items()}
     self._populate_adds()
     self._populate_drops()
     self._populate_picks()
@@ -138,8 +138,8 @@ class Trade(Transaction):
     self.draft_picks = data.get("draft_picks", [])
     self.waiver_budget = data.get("waiver_budget", [])
 
-    self.adds = {int(player_id): int(roster_id) for player_id, roster_id in (data.get("adds") or {}).items()}
-    self.drops = {int(player_id): int(roster_id) for player_id, roster_id in (data.get("drops") or {}).items()}
+    self.adds = {player_id: int(roster_id) for player_id, roster_id in (data.get("adds") or {}).items()}
+    self.drops = {player_id: int(roster_id) for player_id, roster_id in (data.get("drops") or {}).items()}
 
 #  def __str__(self):
 #    return (
