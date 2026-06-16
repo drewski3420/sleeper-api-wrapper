@@ -110,6 +110,17 @@ class League(BaseApi):
 
     return [t for t in self.transactions[week] if transaction_type in [t.transaction_type, "All"]]
 
+  def get_all_transactions(self, week: int) -> list["Transaction"]:
+    """Fetch all transactions for a week.
+
+    Args:
+      week: Week number to load.
+
+    Returns:
+      All transaction objects.
+    """
+    return self._get_transactions(week)
+
   def get_trades(self, week: int) -> list:
     """Fetch trade transactions for a week.
 
