@@ -137,27 +137,27 @@ class TestLeagueInitialization:
     """League should set basic attributes from the API payload."""
     league, _, _ = _build_league(league_data, monkeypatch)
 
-    assert league.league_id == 1
-    assert league.season == "2024"
+    assert league.league_id == 289646328504385536
+    assert league.season == "2018"
     assert league.sport == "nfl"
-    assert league.scoring_settings == {}
+    assert league.scoring_settings == league_data["scoring_settings"]
     assert league.num_teams == 12
-    assert league.league_status == "in_season"
-    assert league.league_name == "Test League"
-    assert league.roster_positions == ["QB", "RB", "WR", "TE"]
+    assert league.league_status == "complete"
+    assert league.league_name == "Sleeper Friends League"
+    assert league.roster_positions == ["QB", "RB", "RB", "WR", "WR", "TE", "FLEX", "FLEX", "DEF", "BN", "BN", "BN", "BN", "BN", "BN"]
 
   def test_init_sets_settings_derived_attributes(self, league_data, restore_client, monkeypatch):
     """League should set week and playoff attributes from settings."""
     league, _, _ = _build_league(league_data, monkeypatch)
 
     assert league.settings == {
-      "start_week": 1,
-      "last_scored_leg": 3,
-      "playoff_week_start": 15,
+      "start_week": 2,
+      "last_scored_leg": 16,
+      "playoff_week_start": 14,
     }
-    assert league.first_week == 1
-    assert league.most_recent_week == 3
-    assert league.playoff_start == 15
+    assert league.first_week == 2
+    assert league.most_recent_week == 16
+    assert league.playoff_start == 14
 
   def test_init_initializes_relationship_collections(self, league_data, restore_client, monkeypatch):
     """League should initialize empty relationship collections."""
@@ -170,7 +170,7 @@ class TestLeagueInitialization:
     assert league.teams_by_roster_id == {}
     assert league.drafts == []
     assert league.all_players is None
-    assert league.sport_state == {"league_season": "2024"}
+    assert league.sport_state == {"league_season": "2018"}
     assert league.is_current_season == 1
 
   def test_init_initializes_transaction_cache(self, league_data, restore_client, monkeypatch):
@@ -183,7 +183,7 @@ class TestLeagueInitialization:
     """League should invoke LeagueAssembler during initialization."""
     league, assembler, client = _build_league(league_data, monkeypatch)
 
-    assert client.get_league_calls == [1]
+    assert client.get_league_calls == [289646328504385536]
     assert assembler.client is client
     assert assembler.assemble_league_calls == [league.league_id]
 
@@ -191,7 +191,7 @@ class TestLeagueInitialization:
     """League.__str__ should return a readable summary."""
     league, _, _ = _build_league(league_data, monkeypatch)
 
-    assert str(league) == "12 Team League: Test League (ID 1)"
+    assert str(league) == "12 Team League: Sleeper Friends League (ID 289646328504385536)"
 
 
 class TestLeagueDataFetching:
@@ -204,7 +204,7 @@ class TestLeagueDataFetching:
     result = league._get_data()
 
     assert result == league_data
-    assert client.get_league_calls == [1, 1]
+    assert client.get_league_calls == [289646328504385536, 289646328504385536]
 
   def test_get_results_returns_empty_when_week_bounds_missing(self, league_data, restore_client, monkeypatch):
     """get_results should return empty mapping when week bounds are unavailable."""
@@ -213,7 +213,7 @@ class TestLeagueDataFetching:
       "settings": {
         "start_week": None,
         "last_scored_leg": None,
-        "playoff_week_start": 15,
+        "playoff_week_start": 14,
       },
     }
     league, _, _ = _build_league(league_data, monkeypatch)
@@ -236,11 +236,23 @@ class TestLeagueDataFetching:
 
     results = league.get_results()
 
-    assert calls == [1, 2, 3]
+    assert calls == list(range(2, 17))
     assert dict(results) == {
-      1: ["week-1"],
       2: ["week-2"],
       3: ["week-3"],
+      4: ["week-4"],
+      5: ["week-5"],
+      6: ["week-6"],
+      7: ["week-7"],
+      8: ["week-8"],
+      9: ["week-9"],
+      10: ["week-10"],
+      11: ["week-11"],
+      12: ["week-12"],
+      13: ["week-13"],
+      14: ["week-14"],
+      15: ["week-15"],
+      16: ["week-16"],
     }
 
   def test_get_week_matchups_delegates_to_assembler(self, league_data, restore_client, monkeypatch):
@@ -254,7 +266,7 @@ class TestLeagueDataFetching:
 
     newest_assembler = DummyAssembler.instances[-1]
     assert result == ["matchup-a", "matchup-b"]
-    assert newest_assembler.assemble_week_matchups_calls == [(1, 2)]
+    assert newest_assembler.assemble_week_matchups_calls == [(289646328504385536, 2)]
 
   def test_get_transactions_populates_cache_for_new_week(self, league_data, restore_client, monkeypatch):
     """_get_transactions should populate cache for an unfetched week."""
@@ -267,7 +279,7 @@ class TestLeagueDataFetching:
 
     newest_assembler = DummyAssembler.instances[-1]
     assert len(DummyAssembler.instances) == 2
-    assert newest_assembler.assemble_transactions_calls == [(1, 5)]
+    assert newest_assembler.assemble_transactions_calls == [(289646328504385536, 5)]
     assert league.transactions[5] == result
 
   def test_get_transactions_reuses_cache_for_existing_week(self, league_data, restore_client, monkeypatch):
