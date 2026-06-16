@@ -16,3 +16,6 @@
 
 ## Version 1.2.0
 - Added `get_sport_state` function to `league` module.
+
+## Version 2.0.0
+  Refactored all code to create and assign more object classes
