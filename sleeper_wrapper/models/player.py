@@ -15,13 +15,13 @@ class Player:
         player_data: Raw player payload.
       """
       self.player_id = str(player_id)
-      self._player_data = player_data or {}
+      self._data = player_data or {}
 
-      self.first_name = self._player_data.get('first_name')
-      self.last_name = self._player_data.get('last_name')
+      self.first_name = self._data.get('first_name')
+      self.last_name = self._data.get('last_name')
       self.full_name = self._get_full_name()
-      self.position = self._player_data.get('position')
-      self.stats = self._player_data.get('stats')
+      self.position = self._data.get('position')
+      self.stats = self._data.get('stats') or {}
 
   def __str__(self):
     """Return a readable player summary."""

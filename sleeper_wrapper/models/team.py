@@ -2,7 +2,6 @@
 
 from .user import User
 
-
 class Team:
   """Represent a league roster/team."""
 
@@ -30,7 +29,7 @@ class Team:
 
   def __str__(self):
     """Return a readable team summary."""
-    if self.user is None:
+    if self.user_obj is None:
       return f"Team {self.team_name}"
 
     return f"Team {self.team_name} owned by {self.user_obj.display_name}"
