@@ -9,7 +9,11 @@ __pycache__/
 
 #coverage report
 .coverage
+coverage.xml
+htmlcov/*
 
 
 
 index.py
+
+
