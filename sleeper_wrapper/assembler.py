@@ -10,18 +10,18 @@ from .matchup import Matchup
 from .team import Team
 from .transaction import FreeAgent, Trade, Transaction, Waiver
 from .user import User
+from .base_api import BaseApi
 
-
-class LeagueAssembler:
+class LeagueAssembler(BaseApi):
   """Build related league objects from API data."""
 
-  def __init__(self, client) -> None:
+  def __init__(self) -> None:
     """Initialize the assembler.
 
     Args:
       client: API client used to fetch data.
     """
-    self.client = client
+    self.client = self.get_client()
 
   def assemble_league(self, league) -> None:
     """Populate league users, teams, drafts, and state.

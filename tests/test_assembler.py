@@ -44,8 +44,8 @@ class FakeClient:
 scenario = TEST_LEAGUE_SCENARIO
 
 client = FakeClient(scenario)
-BaseApi.set_client(FakeClient(scenario))
-assembler = LeagueAssembler(client)
+BaseApi.set_client(client=FakeClient(scenario))
+assembler = LeagueAssembler()
 
 league = League(league_id=scenario["league_id"])
 assembler.assemble_league(league)

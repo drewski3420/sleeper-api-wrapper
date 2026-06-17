@@ -52,7 +52,7 @@ class League(BaseApi):
 
     from .assembler import LeagueAssembler
 
-    LeagueAssembler(self.get_client()).assemble_league(self)
+    LeagueAssembler().assemble_league(self)
 
   def __str__(self):
     """Return a readable league summary."""
@@ -91,7 +91,7 @@ class League(BaseApi):
     """
     from .assembler import LeagueAssembler
 
-    return LeagueAssembler(self.get_client()).assemble_week_matchups(self, week)
+    return LeagueAssembler().assemble_week_matchups(self, week)
 
   def _get_transactions(self, week: int, transaction_type: str = "All") -> list["Transaction"]:
     """Fetch filtered transactions for a week.
@@ -106,7 +106,7 @@ class League(BaseApi):
     from .assembler import LeagueAssembler
 
     if week not in self.transactions:
-      self.transactions[week] = LeagueAssembler(self.get_client()).assemble_transactions(self, week)
+      self.transactions[week] = LeagueAssembler().assemble_transactions(self, week)
 
     return [t for t in self.transactions[week] if transaction_type in [t.transaction_type, "All"]]
 

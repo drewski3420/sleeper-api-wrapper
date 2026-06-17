@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from .api_client import SleeperApiClient
 
-
 class BaseApi:
   """Base class that manages a shared API client."""
 
