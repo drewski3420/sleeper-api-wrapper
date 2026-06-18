@@ -19,13 +19,9 @@ class AllPlayers:
   sport: str
   client: SleeperApiClient | None = None
   cache: FileCache | None = None
-  _sport: str = field(init=False, repr=False)
-  _season: int = field(init=False, repr=False)
   repository: PlayerRepository = field(init=False)
 
   def __post_init__(self) -> None:
-    self._sport = self.sport
-    self._season = self.season
     self.repository = PlayerRepository(
       client=self.client or SleeperApiClient(),
       sport=self.sport,
