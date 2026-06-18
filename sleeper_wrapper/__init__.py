@@ -27,8 +27,6 @@ from .services import (
     DraftService,
     LeagueAssembler,
     LeagueService,
-    MatchupService,
-    TransactionService,
     UserService,
 )
 
@@ -58,7 +56,5 @@ __all__ = [
     "DraftService",
     "LeagueAssembler",
     "LeagueService",
-    "MatchupService",
-    "TransactionService",
     "UserService",
 ]
