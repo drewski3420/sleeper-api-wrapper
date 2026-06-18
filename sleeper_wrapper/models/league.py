@@ -11,7 +11,7 @@ class League:
   _data: dict = field(init=False, repr=False)
 
   league_id: int = field(init=False)
-  season: str | None = field(init=False)
+  season: int | None = field(init=False)
   sport: str | None = field(init=False)
   settings: dict = field(init=False)
   scoring_settings: dict = field(init=False)
@@ -31,7 +31,7 @@ class League:
   drafts: list = field(init=False)
   all_players: object | None = field(init=False)
   sport_state: dict = field(init=False)
-  is_current_season: int = field(init=False)
+  is_current_season: bool = field(init=False)
   transactions: dict = field(init=False)
   trades: dict = field(init=False)
   free_agents: dict = field(init=False)
@@ -62,7 +62,7 @@ class League:
     self.drafts = []
     self.all_players = None
     self.sport_state = {}
-    self.is_current_season = 0
+    self.is_current_season = False
     self.transactions = {}
     self.trades = {}
     self.free_agents = {}

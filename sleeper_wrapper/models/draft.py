@@ -10,10 +10,14 @@ class Draft:
   draft_id: int
   draft_data: dict | None = None
   _data: dict = field(init=False, repr=False)
-  season: str | None = field(init=False)
+  season: int | None = field(init=False)
   status: str | None = field(init=False)
   settings: dict = field(init=False)
   metadata: dict = field(init=False)
+  league_id: int = field(init=False)
+  sport: str = field(init=False)
+  draft_type: str = field(init=False)
+  slot_to_roster_id: dict = field(init=False)
   picks: list = field(init=False)
   traded_picks: list = field(init=False)
   teams: list = field(init=False)
@@ -26,6 +30,11 @@ class Draft:
     self.status = self._data.get("status")
     self.settings = self._data.get("settings") or {}
     self.metadata = self._data.get("metadata") or {}
+    self.league_id = self._data.get("league_id")
+    self.sport = self._data.get("sport")
+    self.draft_type = self._data.get("type")
+    self.slot_to_roster_id = self._data.get("slot_to_roster_id") or {}
+
     self.picks = []
     self.traded_picks = []
     self.teams = []

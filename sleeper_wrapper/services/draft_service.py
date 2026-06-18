@@ -40,7 +40,7 @@ class DraftService:
     draft: Draft,
   ) -> tuple[dict[int, User], dict[int, Team], dict[int, Team]]:
     """Build user and team lookup maps for a draft via its league."""
-    league_id = draft._data.get("league_id")
+    league_id = draft.league_id
     if league_id is None:
       return {}, {}, {}
 

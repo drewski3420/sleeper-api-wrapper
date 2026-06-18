@@ -38,7 +38,7 @@ class LeagueAssembler:
 
     league.sport_state = self._get_sport_state(league.sport)
     league.is_current_season = (
-      1 if league.sport_state.get("league_season") == league.season else 0
+      True if league.sport_state.get("league_season") == league.season else False
     )
 
   def assemble_week_matchups(self, league: League, week: int) -> list[Matchup]:
