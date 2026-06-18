@@ -77,3 +77,7 @@ class Pick:
     if self.picked_by_user_id is None:
       return None
     return self._teams_by_user_id.get(self.picked_by_user_id)
+
+
+class TradedPick(Pick):
+  """Represent a draft pick."""
