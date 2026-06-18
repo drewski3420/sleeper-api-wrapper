@@ -4,10 +4,12 @@ This project began as a fork of sleeper-api-wrapper by [dtsong](https://github.c
 It has since undergone substantial architectural and implementation changes by drewski3420.
 
 
-################################################################################################ 
+***
+
 ![GitHub](https://img.shields.io/github/license/dtsong/sleeper-api-wrapper.svg?color=blue)
 ![GitHub issues](https://img.shields.io/github/issues/dtsong/sleeper-api-wrapper.svg?color=orange)
 ![PyPI](https://img.shields.io/pypi/v/sleeper-api-wrapper)
+
 # sleeper-api-wrapper
 A Python API wrapper for Sleeper Fantasy Sports, as well as tools to simplify data received. It makes all endpoints found in the Sleeper API docs: https://docs.sleeper.app/ available and turns the JSON response received into Python types for easy usage.
 
