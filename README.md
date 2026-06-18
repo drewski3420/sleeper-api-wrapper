@@ -6,9 +6,6 @@ It has since undergone substantial architectural and implementation changes by d
 
 ***
 
-![GitHub](https://img.shields.io/github/license/drewski3420/sleeper-api-wrapper.svg?color=blue)
-![GitHub issues](https://img.shields.io/github/issues/drewski3420/sleeper-api-wrapper.svg?color=orange)
-
 # sleeper-api-wrapper
 
 # Table of Contents
