@@ -23,7 +23,7 @@ class UserService:
   def get_all_leagues(self, user_id: int, season: int, sport: str) -> list[League]:
     """Fetch all leagues for a user."""
     leagues = self.client.get_user_leagues(user_id, sport, season)
-    return [League(int(league["league_id"]), league) for league in leagues]
+    return [League(league) for league in leagues]
 
   def get_all_drafts(self, user_id: int, season: int, sport: str) -> list[Draft]:
     """Fetch all drafts for a user."""
