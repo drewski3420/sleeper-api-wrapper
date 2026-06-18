@@ -9,11 +9,19 @@ from sleeper_wrapper import (
   UserService,
 )
 
+# Replace these ids with real values for your account/league/draft.
+sport = "nfl"
+season = 2018
+user_name = "calamariota757"
+league_id = 289646328504385536
+draft_id = 289646328508579840
+week = 1
 
-def print_user_summary(user_service: UserService, user_id: int, season: int, sport: str) -> None:
+def print_user_summary(user_service: UserService, user_name: str, season: int, sport: str) -> None:
   """Load a user and print related league and draft info."""
   print("=== User Summary ===")
-  user = user_service.load_user(user_id)
+  user = user_service.load_user(user_name)
+  user_id = user.user_id
   print(user)
 
   leagues = user_service.get_all_leagues(user_id=user_id, season=season, sport=sport)
@@ -27,7 +35,6 @@ def print_user_summary(user_service: UserService, user_id: int, season: int, spo
     print(f"- {draft}")
 
   print()
-
 
 def print_league_summary(league_service: LeagueService, league_id: int, week: int) -> None:
   """Load a league and print matchup and transaction info."""
@@ -64,7 +71,7 @@ def print_league_summary(league_service: LeagueService, league_id: int, week: in
   print(f"=== Week {week} Transactions ===")
   transactions = league_service.get_week_transactions(league, week)
   print(f"Transactions found: {len(transactions)}")
-  for transaction in transactions:
+  for transaction in transactions[:10]:
     print(
       f"- Transaction {transaction.transaction_id} "
       f"type={transaction.transaction_type} "
@@ -112,13 +119,12 @@ def print_draft_summary(draft_service: DraftService, draft_id: int) -> None:
   for pick in picks[:10]:
     print(f"- {pick}")
 
-  traded_picks = draft_service.get_traded_picks(draft_id)
+  traded_picks = draft_service.get_all_traded_picks(draft_id)
   print(f"Traded picks: {len(traded_picks)}")
   for pick in traded_picks[:10]:
     print(f"- {pick}")
 
   print()
-
 
 def print_players_summary(season: int, sport: str) -> None:
   """Load cached player data and print a few examples."""
@@ -133,27 +139,16 @@ def print_players_summary(season: int, sport: str) -> None:
 
   print()
 
-
 def main() -> None:
   """Run a simple sample flow against the Sleeper API."""
-  sport = "nfl"
-  season = 2023
-
-  # Replace these ids with real values for your account/league/draft.
-  user_id = 1
-  league_id = 1
-  draft_id = 1
-  week = 1
-
   user_service = UserService()
   league_service = LeagueService()
   draft_service = DraftService()
 
-  print_user_summary(user_service, user_id=user_id, season=season, sport=sport)
+  print_user_summary(user_service, user_name=user_name, season=season, sport=sport)
   print_league_summary(league_service, league_id=league_id, week=week)
   print_draft_summary(draft_service, draft_id=draft_id)
   print_players_summary(season=season, sport=sport)
-
 
 if __name__ == "__main__":
   main()
