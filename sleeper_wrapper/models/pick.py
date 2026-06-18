@@ -122,7 +122,14 @@ class TradedPick:
       if self.current_owner_roster_id is not None
       else "Unknown roster"
     )
-    return f"Season: {self.season} Round: {self.round} Current Owner: {current_owner}"
+    previous_owner = (
+      self.previous_owner_team_obj.team_name
+      if self.previous_owner_team_obj is not None
+      else f"Roster {self.previous_owner_roster_id}"
+      if self.previous_owner_roster_id is not None
+      else "Unknown roster"
+    )
+    return f"Season: {self.season} Round: {self.round} Traded from: {previous_owner} to: {current_owner}"
 
   def _get_team(self, roster_id: int | None) -> "Team | None":
     """Resolve a team by roster id."""
