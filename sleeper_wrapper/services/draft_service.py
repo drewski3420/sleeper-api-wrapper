@@ -28,7 +28,7 @@ class DraftService:
     raw_picks = self.client.get_draft_picks(draft_id)
     return [Pick(pick, users_by_id, teams_by_user_id) for pick in raw_picks]
 
-  def get_traded_picks(self, draft_id: int) -> list[TradedPick]:
+  def get_all_traded_picks(self, draft_id: int) -> list[TradedPick]:
     """Fetch and build traded picks for a draft."""
     draft = self.load_draft(draft_id)
     _users_by_id, _teams_by_user_id, teams_by_roster_id = self._get_draft_context(draft)
