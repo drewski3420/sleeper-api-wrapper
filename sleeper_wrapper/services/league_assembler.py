@@ -119,7 +119,8 @@ class LeagueAssembler:
 
   def _get_teams(self, league_id: int, users_by_id: dict[int, User]) -> list[Team]:
     """Fetch league teams."""
-    teams_data = self.client.get_league_rosters(league_id)
+    teams_payload = self.client.get_league_rosters(league_id)
+    teams_data = dict(teams_payload)
     teams = []
 
     for team in teams_data:
@@ -132,16 +133,16 @@ class LeagueAssembler:
   def _get_drafts(
       self,
       league_id: int,
-    ) -> list[Draft]:
-      """Fetch league drafts."""
-      drafts = self.client.get_league_drafts(league_id)
-      return [
-        Draft(
-          int(draft.get("draft_id")),
-          draft,
-        )
+  ) -> list[Draft]:
+    """Fetch league drafts."""
+    drafts = self.client.get_league_drafts(league_id)
+    return [
+      Draft(
+        int(draft.get("draft_id")),
+        draft,
+      )
         for draft in drafts
-      ]
+    ]
 
   def _get_sport_state(self, sport: str) -> dict:
     """Fetch sport state."""
