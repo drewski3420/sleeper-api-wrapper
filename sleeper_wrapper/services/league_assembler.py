@@ -120,7 +120,7 @@ class LeagueAssembler:
   def _get_teams(self, league_id: int, users_by_id: dict[int, User]) -> list[Team]:
     """Fetch league teams."""
     teams_payload = self.client.get_league_rosters(league_id)
-    teams_data = dict(teams_payload)
+    teams_data = teams_payload
     teams = []
 
     for team in teams_data:
