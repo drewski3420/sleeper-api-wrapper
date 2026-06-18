@@ -215,7 +215,6 @@ class SleeperApiClient:
     Returns:
       Player payload.
     """
-#    return self.get_by_path(f"players/{sport}")
     return self.get_by_root_path(f"projections/{sport}/{season}?season_type=regular")
 
   def get_stats(self, sport: str, season_type: str, season: int) -> dict:

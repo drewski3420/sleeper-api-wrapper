@@ -1,4 +1,4 @@
-# models/draft.py
+"""Draft Model for League"""
 
 from __future__ import annotations
 

@@ -1,4 +1,3 @@
-# models/matchup.py
 """Matchup models."""
 
 from __future__ import annotations
@@ -87,10 +86,6 @@ class MatchupTeam:
     team.starter_points = sum(p.points for p in players if p.is_starter == 1)
     team.bench_points = sum(p.points for p in players if p.is_bench == 1)
     return team
-
-#  @classmethod
-#  def sort_players_by_position(self) -> None:
-#    self.players_with_points.sort(key=get_position_sort_key)
 
 @dataclass
 class Matchup:

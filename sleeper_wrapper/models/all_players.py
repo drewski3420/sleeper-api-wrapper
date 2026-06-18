@@ -1,4 +1,3 @@
-# models/all_players.py
 """Player collection wrapper using a repository."""
 
 from __future__ import annotations
