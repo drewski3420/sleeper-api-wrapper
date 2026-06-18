@@ -10,7 +10,7 @@ from datetime import datetime
 class TransactionPlayer:
   """Represent a player moved in a transaction."""
 
-  player_id: int
+  player_id: str
   player_obj: object | None = None
 
 
@@ -110,12 +110,12 @@ class Transaction:
   def _populate_drops(self) -> None:
     for player_id, roster_id in self.drops.items():
       if roster_id in self.teams_by_roster_id:
-        self.teams_by_roster_id[roster_id].players_dropped.append(TransactionPlayer(int(player_id)))
+        self.teams_by_roster_id[roster_id].players_dropped.append(TransactionPlayer(player_id))
 
   def _populate_adds(self) -> None:
     for player_id, roster_id in self.adds.items():
       if roster_id in self.teams_by_roster_id:
-        self.teams_by_roster_id[roster_id].players_added.append(TransactionPlayer(int(player_id)))
+        self.teams_by_roster_id[roster_id].players_added.append(TransactionPlayer(player_id))
 
 
 @dataclass
