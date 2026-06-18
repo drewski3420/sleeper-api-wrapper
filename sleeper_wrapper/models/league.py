@@ -2,10 +2,44 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 
+
+@dataclass
 class League:
-  def __init__(self, league_data: dict | None = None) -> None:
-    self._data = league_data or {}
+  league_data: dict | None = None
+  _data: dict = field(init=False, repr=False)
+
+  league_id: int = field(init=False)
+  season: str | None = field(init=False)
+  sport: str | None = field(init=False)
+  settings: dict = field(init=False)
+  scoring_settings: dict = field(init=False)
+  first_week: int | None = field(init=False)
+  most_recent_week: int | None = field(init=False)
+  playoff_start: int | None = field(init=False)
+  num_teams: int | None = field(init=False)
+  league_status: str | None = field(init=False)
+  league_name: str | None = field(init=False)
+  roster_positions: list | None = field(init=False)
+
+  users: list = field(init=False)
+  users_by_id: dict = field(init=False)
+  teams: list = field(init=False)
+  teams_by_user_id: dict = field(init=False)
+  teams_by_roster_id: dict = field(init=False)
+  drafts: list = field(init=False)
+  all_players: object | None = field(init=False)
+  sport_state: dict = field(init=False)
+  is_current_season: int = field(init=False)
+  transactions: dict = field(init=False)
+  trades: dict = field(init=False)
+  free_agents: dict = field(init=False)
+  waiver: dict = field(init=False)
+  matchups: dict = field(init=False)
+
+  def __post_init__(self) -> None:
+    self._data = self.league_data or {}
 
     self.league_id = int(self._data.get("league_id"))
     self.season = self._data.get("season")
@@ -35,5 +69,5 @@ class League:
     self.waiver = {}
     self.matchups = {}
 
-  def __str__(self):
+  def __str__(self) -> str:
     return f"League: {self.league_name} (ID: {self.league_id})"

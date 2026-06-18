@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import Any
 
 from ..api_client import SleeperApiClient
@@ -11,23 +12,26 @@ from ..repositories.file_cache import FileCache
 from ..repositories.player_repository import PlayerRepository
 
 
+@dataclass
 class AllPlayers:
   """Load and cache all players for a sport and season."""
 
-  def __init__(
-    self,
-    season: int,
-    sport: str,
-    client: SleeperApiClient | None = None,
-    cache: FileCache | None = None,
-  ) -> None:
-    self._sport = sport
-    self._season = season
+  season: int
+  sport: str
+  client: SleeperApiClient | None = None
+  cache: FileCache | None = None
+  _sport: str = field(init=False, repr=False)
+  _season: int = field(init=False, repr=False)
+  repository: PlayerRepository = field(init=False)
+
+  def __post_init__(self) -> None:
+    self._sport = self.sport
+    self._season = self.season
     self.repository = PlayerRepository(
-      client=client or SleeperApiClient(),
-      sport=sport,
-      season=season,
-      cache=cache,
+      client=self.client or SleeperApiClient(),
+      sport=self.sport,
+      season=self.season,
+      cache=self.cache,
     )
 
   @property

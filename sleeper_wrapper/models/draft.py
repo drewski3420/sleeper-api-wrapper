@@ -2,11 +2,25 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 
+
+@dataclass
 class Draft:
-  def __init__(self, draft_id: int, draft_data: dict | None = None) -> None:
-    self.draft_id = int(draft_id)
-    self._data = draft_data or {}
+  draft_id: int
+  draft_data: dict | None = None
+  _data: dict = field(init=False, repr=False)
+  season: str | None = field(init=False)
+  status: str | None = field(init=False)
+  settings: dict = field(init=False)
+  metadata: dict = field(init=False)
+  picks: list = field(init=False)
+  traded_picks: list = field(init=False)
+  teams: list = field(init=False)
+
+  def __post_init__(self) -> None:
+    self.draft_id = int(self.draft_id)
+    self._data = self.draft_data or {}
 
     self.season = self._data.get("season")
     self.status = self._data.get("status")
@@ -16,5 +30,5 @@ class Draft:
     self.traded_picks = []
     self.teams = []
 
-  def __str__(self):
+  def __str__(self) -> str:
     return f"Draft: {self.draft_id}"

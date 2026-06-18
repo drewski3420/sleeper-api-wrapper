@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from .player import Player
@@ -11,25 +12,32 @@ if TYPE_CHECKING:
   from .user import User
 
 
+@dataclass
 class Pick:
   """Represent a draft pick."""
 
-  def __init__(
-    self,
-    data: dict,
-    users_by_id: dict[int, "User"],
-    teams_by_user_id: dict[int, "Team"],
-  ) -> None:
-    """Initialize a draft pick.
+  data: dict
+  users_by_id: dict[int, "User"]
+  teams_by_user_id: dict[int, "Team"]
+  _users_by_id: dict[int, "User"] = field(init=False, repr=False)
+  _teams_by_user_id: dict[int, "Team"] = field(init=False, repr=False)
+  _data: dict = field(init=False, repr=False)
+  pick_no: int | None = field(init=False)
+  round: int | None = field(init=False)
+  metadata: dict = field(init=False)
+  player_id: str | None = field(init=False)
+  picked_by_user_id: int | None = field(init=False)
+  round_pick_number: int = field(init=False)
+  player_obj: Player = field(init=False)
+  user_obj: "User | None" = field(init=False)
+  team_obj: "Team | None" = field(init=False)
+  team_name: str | None = field(init=False)
 
-    Args:
-      data: Raw pick payload.
-      users_by_id: User mapping keyed by user id.
-      teams_by_user_id: Team mapping keyed by user id.
-    """
-    self._users_by_id = users_by_id
-    self._teams_by_user_id = teams_by_user_id
-    self._data = data
+  def __post_init__(self) -> None:
+    """Initialize a draft pick."""
+    self._users_by_id = self.users_by_id
+    self._teams_by_user_id = self.teams_by_user_id
+    self._data = self.data
 
     self.pick_no = self._data.get("pick_no")
     self.round = self._data.get("round")
@@ -79,22 +87,27 @@ class Pick:
     return self._teams_by_user_id.get(self.picked_by_user_id)
 
 
+@dataclass
 class TradedPick:
   """Represent a traded draft-pick asset."""
 
-  def __init__(
-    self,
-    data: dict,
-    teams_by_roster_id: dict[int, "Team"],
-  ) -> None:
-    """Initialize a traded pick.
+  data: dict
+  teams_by_roster_id: dict[int, "Team"]
+  _data: dict = field(init=False, repr=False)
+  _teams_by_roster_id: dict[int, "Team"] = field(init=False, repr=False)
+  season: str | None = field(init=False)
+  round: int | None = field(init=False)
+  original_roster_id: int | None = field(init=False)
+  previous_owner_roster_id: int | None = field(init=False)
+  current_owner_roster_id: int | None = field(init=False)
+  original_owner_team_obj: "Team | None" = field(init=False)
+  previous_owner_team_obj: "Team | None" = field(init=False)
+  current_owner_team_obj: "Team | None" = field(init=False)
 
-    Args:
-      data: Raw traded-pick payload.
-      teams_by_roster_id: Team mapping keyed by roster id.
-    """
-    self._data = data
-    self._teams_by_roster_id = teams_by_roster_id
+  def __post_init__(self) -> None:
+    """Initialize a traded pick."""
+    self._data = self.data
+    self._teams_by_roster_id = self.teams_by_roster_id
 
     self.season = str(self._data.get("season")) if self._data.get("season") is not None else None
     self.round = self._data.get("round")
