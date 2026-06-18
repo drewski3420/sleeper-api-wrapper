@@ -56,11 +56,11 @@ class SleeperApiClient:
     normalized_path = path.lstrip("/")
     return self.get(f"{self.root_url}/{normalized_path}")
 
-  def get_user(self, user_input: int) -> dict:
+  def get_user(self, user_input: Union[int, str]) -> dict:
     """Fetch a user.
 
     Args:
-      user_input: User id to request.
+      user_input: User id or user name to request.
 
     Returns:
       User payload.
