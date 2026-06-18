@@ -164,6 +164,6 @@ class Waiver(Transaction):
     tx.added_player_ids = list((tx.adds or {}).keys())
     tx.dropped_player_ids = list((tx.drops or {}).keys())
     tx.waiver_bid = int(data.get("settings", {}).get("waiver_bid")) if data.get("settings") else None
-    tx.waiver_seq = int(data.get("settings", {}).get("seq")) if data.get("settings") else None
+    tx.waiver_seq = int(data.get("settings", {}).get("seq", 0)) if data.get("settings") else None
     tx.message = data.get("metadata", {}).get("notes")
     return tx
