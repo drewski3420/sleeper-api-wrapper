@@ -14,11 +14,11 @@ class UserService:
   def __init__(self, client: SleeperApiClient | None = None) -> None:
     self.client = client or SleeperApiClient()
 
-  def load_user(self, user_name: str, user_data: dict | None = None) -> User:
+  def load_user(self, user_input: int | str, user_data: dict | None = None) -> User:
     """Create a User from provided data, or fetch it if missing."""
     if user_data is None:
-      user_data = self.client.get_user(user_name)
-    return User(user_name, user_data)
+      user_data = self.client.get_user(user_input)
+    return User(user_input, user_data)
 
   def get_all_leagues(self, user_id: int, season: int, sport: str) -> list[League]:
     """Fetch all leagues for a user."""
