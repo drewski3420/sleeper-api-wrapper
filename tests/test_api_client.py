@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 
 from sleeper_wrapper.api_client import SleeperApiClient
 
-from fixtures import TEST_LEAGUE_SCENARIO #, LEAGUE_ID, USER_ID, DRAFT_ID, SPORT, YEAR, WEEK
+from fixtures import TEST_LEAGUE_SCENARIO
 
 LEAGUE_ID = TEST_LEAGUE_SCENARIO['league_id']
 USER_ID = TEST_LEAGUE_SCENARIO['users'][0]['user_id']
