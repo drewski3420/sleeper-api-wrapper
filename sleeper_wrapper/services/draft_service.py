@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from ..api_client import SleeperApiClient
 from ..models.draft import Draft
-from ..models.pick import Pick
+from ..models.pick import Pick, TradedPick
 from ..models.team import Team
 from ..models.user import User
 
@@ -24,22 +24,25 @@ class DraftService:
   def get_all_picks(self, draft_id: int) -> list[Pick]:
     """Fetch and build all picks for a draft."""
     draft = self.load_draft(draft_id)
-    users_by_id, teams_by_user_id = self._get_draft_context(draft)
+    users_by_id, teams_by_user_id, _teams_by_roster_id = self._get_draft_context(draft)
     raw_picks = self.client.get_draft_picks(draft_id)
     return [Pick(pick, users_by_id, teams_by_user_id) for pick in raw_picks]
 
-  def get_traded_picks(self, draft_id: int) -> list[Pick]:
+  def get_traded_picks(self, draft_id: int) -> list[TradedPick]:
     """Fetch and build traded picks for a draft."""
     draft = self.load_draft(draft_id)
-    users_by_id, teams_by_user_id = self._get_draft_context(draft)
+    _users_by_id, _teams_by_user_id, teams_by_roster_id = self._get_draft_context(draft)
     raw_picks = self.client.get_draft_traded_picks(draft_id)
-    return [Pick(pick, users_by_id, teams_by_user_id) for pick in raw_picks]
+    return [TradedPick(pick, teams_by_roster_id) for pick in raw_picks]
 
-  def _get_draft_context(self, draft: Draft) -> tuple[dict[int, User], dict[int, Team]]:
+  def _get_draft_context(
+    self,
+    draft: Draft,
+  ) -> tuple[dict[int, User], dict[int, Team], dict[int, Team]]:
     """Build user and team lookup maps for a draft via its league."""
     league_id = draft._data.get("league_id")
     if league_id is None:
-      return {}, {}
+      return {}, {}, {}
 
     users = self.client.get_league_users(int(league_id))
     user_objects = [
@@ -61,5 +64,6 @@ class DraftService:
       for team in teams
       if team.user_obj is not None
     }
+    teams_by_roster_id = {team.roster_id: team for team in teams}
 
-    return users_by_id, teams_by_user_id
+    return users_by_id, teams_by_user_id, teams_by_roster_id

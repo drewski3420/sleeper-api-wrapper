@@ -79,5 +79,53 @@ class Pick:
     return self._teams_by_user_id.get(self.picked_by_user_id)
 
 
-class TradedPick(Pick):
-  """Represent a draft pick."""
+class TradedPick:
+  """Represent a traded draft-pick asset."""
+
+  def __init__(
+    self,
+    data: dict,
+    teams_by_roster_id: dict[int, "Team"],
+  ) -> None:
+    """Initialize a traded pick.
+
+    Args:
+      data: Raw traded-pick payload.
+      teams_by_roster_id: Team mapping keyed by roster id.
+    """
+    self._data = data
+    self._teams_by_roster_id = teams_by_roster_id
+
+    self.season = str(self._data.get("season")) if self._data.get("season") is not None else None
+    self.round = self._data.get("round")
+
+    roster_id = self._data.get("roster_id")
+    previous_owner_id = self._data.get("previous_owner_id")
+    owner_id = self._data.get("owner_id")
+
+    self.original_roster_id = int(roster_id) if roster_id is not None else None
+    self.previous_owner_roster_id = (
+      int(previous_owner_id) if previous_owner_id is not None else None
+    )
+    self.current_owner_roster_id = int(owner_id) if owner_id is not None else None
+
+    self.original_owner_team_obj = self._get_team(self.original_roster_id)
+    self.previous_owner_team_obj = self._get_team(self.previous_owner_roster_id)
+    self.current_owner_team_obj = self._get_team(self.current_owner_roster_id)
+
+  def __str__(self) -> str:
+    """Return a readable traded-pick summary."""
+    current_owner = (
+      self.current_owner_team_obj.team_name
+      if self.current_owner_team_obj is not None
+      else f"Roster {self.current_owner_roster_id}"
+      if self.current_owner_roster_id is not None
+      else "Unknown roster"
+    )
+    return f"Season: {self.season} Round: {self.round} Current Owner: {current_owner}"
+
+  def _get_team(self, roster_id: int | None) -> "Team | None":
+    """Resolve a team by roster id."""
+    if roster_id is None:
+      return None
+    return self._teams_by_roster_id.get(roster_id)
