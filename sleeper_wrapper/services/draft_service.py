@@ -34,6 +34,52 @@ class DraftService:
     raw_picks = self.client.get_draft_traded_picks(draft.draft_id)
     return [TradedPick(pick, teams_by_roster_id) for pick in raw_picks]
 
+  def get_top_available(self, draft: Draft, position: list[str] | str, num_to_return: int = 50) -> list[Player]:
+    """Get top available players by ADP.
+
+    Args:
+      position: Positions to include.
+      num_to_return: How many player to return, or 50
+
+    Returns:
+      Available players
+    """
+    if isinstance(position,str):
+      position = [position]
+
+    drafted_player_ids = {
+      str(pick.player_id)
+      for pick in self.get_all_picks(draft)
+      if pick.player_id is not None
+    }
+    scoring_type = draft.scoring_type or "std"
+    sort_field = f"adp_{scoring_type}"
+    available_players: list[Player] = []
+    ranked_players = []
+
+    all_players = AllPlayers(season=draft.season, sport=draft.sport)
+    for player_id, player in all_players.players_by_id.items():
+      player_stats = player.stats or {}
+      ranked_val = (
+        player_stats.get(sort_field)
+        or player_stats.get("adp_std")
+        or float("inf")
+      )
+      ranked_players.append((ranked_val, player)) #player_id, player_data, player_stats))
+    ranked_players.sort(key=lambda player: player[0])
+
+    for ranked_val, player in ranked_players:
+      if player_id in drafted_player_ids:
+        continue
+      if position[0] == 'All' or player.position in position:
+        player.stats['ranked_val'] = ranked_val
+        available_players.append(player)
+
+      if len(available_players) >= num_to_return:
+        break
+
+    return available_players
+
   def _get_draft_context(
     self,
     draft: Draft,
