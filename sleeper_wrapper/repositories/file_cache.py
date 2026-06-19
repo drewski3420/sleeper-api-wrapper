@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from time import time
 from typing import Any
 
 
@@ -13,10 +14,14 @@ class FileCache:
 
   def __init__(self, filename: str | Path):
     self.filename = Path(filename)
+    self.max_age = 86400
 
-  def exists(self) -> bool:
-    """Return True if the cache file exists."""
-    return self.filename.exists()
+  def recent(self) -> bool:
+    """Return True if the cache file exists and is newer than the max_age"""
+    try:
+      return time() - self.filename.stat().st_mtime < self.max_age
+    except FileNotFoundError:
+      return False
 
   def read_json(self) -> Any:
     """Read and parse JSON from the cache file."""
@@ -31,6 +36,6 @@ class FileCache:
 
   def read_or_none(self) -> Any | None:
     """Return parsed JSON if the file exists, otherwise None."""
-    if not self.exists():
+    if not self.recent():
       return None
     return self.read_json()
