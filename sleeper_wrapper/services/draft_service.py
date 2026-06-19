@@ -24,14 +24,12 @@ class DraftService:
 
   def get_all_picks(self, draft: Draft) -> list[Pick]:
     """Fetch and build all picks for a draft."""
-#    draft = self.load_draft(draft_id)
     users_by_id, teams_by_user_id, _teams_by_roster_id = self._get_draft_context(draft)
     raw_picks = self.client.get_draft_picks(draft.draft_id)
     return [Pick(pick, users_by_id, teams_by_user_id) for pick in raw_picks]
 
   def get_all_traded_picks(self, draft: Draft) -> list[TradedPick]:
     """Fetch and build traded picks for a draft."""
-#    draft = self.load_draft(draft_id)
     _users_by_id, _teams_by_user_id, teams_by_roster_id = self._get_draft_context(draft)
     raw_picks = self.client.get_draft_traded_picks(draft.draft_id)
     return [TradedPick(pick, teams_by_roster_id) for pick in raw_picks]
