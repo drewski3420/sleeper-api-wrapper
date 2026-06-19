@@ -37,7 +37,7 @@ class PlayerRepository:
       self.cache.write_json(data)
 
     self._players_by_id = {
-        str(player.get("player_id")): Player(player.get('player_id'), player)
+        str(player.get("player_id")): Player(player_id=player.get("player_id"), player_data=player.get("player"), stats=player.get("stats"))
         for player in data
         if isinstance(player, dict) and player.get("player_id") is not None
       }

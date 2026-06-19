@@ -11,12 +11,12 @@ class Player:
 
   player_id: str
   player_data: dict | None = None
+  stats: dict | None = None
   _data: dict = field(init=False, repr=False)
   first_name: str | None = field(init=False)
   last_name: str | None = field(init=False)
   full_name: str = field(init=False)
   position: str | None = field(init=False)
-  stats: dict = field(init=False)
 
   def __post_init__(self) -> None:
     """Initialize derived player fields."""
@@ -27,7 +27,7 @@ class Player:
     self.last_name = self._data.get("last_name")
     self.full_name = self._get_full_name()
     self.position = self._data.get("position")
-    self.stats = self._data.get("stats") or {}
+    self.stats = self.stats or self._data.get("stats") or {}
 
   def __str__(self) -> str:
     """Return a readable player summary."""
