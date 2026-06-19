@@ -30,7 +30,7 @@ class AllPlayers:
     )
 
   @property
-  def players_by_id(self) -> dict[str, dict[str, Any]]:
+  def players_by_id(self) -> dict[str, Player]:
     return self.repository.load_players_by_id()
 
   def get_player(self, player_id: int | str) -> Player:

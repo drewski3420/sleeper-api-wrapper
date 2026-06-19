@@ -24,9 +24,9 @@ class PlayerRepository:
     self.sport = sport
     self.season = season
     self.cache = cache or FileCache(f"players_{sport}_{season}.json")
-    self._players_by_id: dict[str, dict[str, Any]] | None = None
+    self._players_by_id: dict[str, Player] | None = None
 
-  def load_players_by_id(self) -> dict[str, dict[str, Any]]:
+  def load_players_by_id(self) -> dict[str, Player]:
     """Return player payloads keyed by player id."""
     if self._players_by_id is not None:
       return self._players_by_id
@@ -36,23 +36,16 @@ class PlayerRepository:
       data = self.client.get_players(self.sport, str(self.season))
       self.cache.write_json(data)
 
-    self._players_by_id = self._normalize_players(data)
+    self._players_by_id = {
+        str(player.get("player_id")): Player(player.get('player_id'), player)
+        for player in data
+        if isinstance(player, dict) and player.get("player_id") is not None
+      }
     return self._players_by_id
-
-  def _normalize_players(self, data: Any) -> dict[str, dict[str, Any]]:
-    """Normalize API/cache payload into a player-id lookup."""
-    if isinstance(data, dict):
-      return {str(player_id): player_data for player_id, player_data in data.items()}
-
-    return {
-      str(player.get("player_id")): player
-      for player in data
-      if isinstance(player, dict) and player.get("player_id") is not None
-    }
 
   def get_player(self, player_id: int | str) -> Player:
     """Return a Player object for the given id."""
     player_id = str(player_id)
     players_by_id = self.load_players_by_id()
-    player_data = players_by_id.get(player_id, {})
-    return Player(player_id, player_data)
+    player = players_by_id.get(player_id, {})
+    return player
