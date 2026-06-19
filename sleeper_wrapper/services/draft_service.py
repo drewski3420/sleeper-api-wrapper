@@ -8,7 +8,6 @@ from ..models.pick import Pick, TradedPick
 from ..models.team import Team
 from ..models.user import User
 from ..models.all_players import AllPlayers
-#from ..models.player import Player
 
 class DraftService:
   """Load draft-related aggregates from the API."""
@@ -34,7 +33,7 @@ class DraftService:
     raw_picks = self.client.get_draft_traded_picks(draft.draft_id)
     return [TradedPick(pick, teams_by_roster_id) for pick in raw_picks]
 
-  def get_top_available(self, draft: Draft, position: list[str] | str, num_to_return: int = 50) -> list[Player]:
+  def get_top_available(self, draft: Draft, position: list[str] | str, num_to_return: int = 50) -> tuple[str, Player]:
     """Get top available players by ADP.
 
     Args:
@@ -60,20 +59,22 @@ class DraftService:
     all_players = AllPlayers(season=draft.season, sport=draft.sport)
     for player_id, player in all_players.players_by_id.items():
       player_stats = player.stats or {}
-      ranked_val = (
-        player_stats.get(sort_field)
-        or player_stats.get("adp_std")
-        or float("inf")
+      ranked_val = (sort_field, (
+          player_stats.get(sort_field)
+          or player_stats.get("adp_std")
+          or float("inf")
+        )
       )
-      ranked_players.append((ranked_val, player)) #player_id, player_data, player_stats))
+      ranked_players.append((ranked_val, player))
     ranked_players.sort(key=lambda player: player[0])
 
     for ranked_val, player in ranked_players:
-      if player_id in drafted_player_ids:
+      if str(player.player_id) in drafted_player_ids:
         continue
       if position[0] == 'All' or player.position in position:
-        player.stats['ranked_val'] = ranked_val
-        available_players.append(player)
+        player.stats['rankd_val_field'] = ranked_val[0]
+        player.stats['ranked_val'] = ranked_val[1]
+        available_players.append((ranked_val, player))
 
       if len(available_players) >= num_to_return:
         break
