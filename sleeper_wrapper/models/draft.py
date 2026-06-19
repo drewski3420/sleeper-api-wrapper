@@ -30,6 +30,7 @@ class Draft:
     self.status = self._data.get("status")
     self.settings = self._data.get("settings") or {}
     self.metadata = self._data.get("metadata") or {}
+    self.scoring_type = self.metadata.get("scoring_type") or "std"
     self.league_id = self._data.get("league_id")
     self.sport = self._data.get("sport")
     self.draft_type = self._data.get("type")
