@@ -18,6 +18,7 @@ class SleeperApiClient:
     """
     self.base_url = base_url.rstrip("/")
     self.root_url = self.base_url.removesuffix("/v1")
+    self._trending_params = {'lookback_hours': 24, "limit": 20}
 
   def get(self, url: str) -> Any:
     """Send a GET request.
@@ -216,6 +217,21 @@ class SleeperApiClient:
       Player payload.
     """
     return self.get_by_root_path(f"projections/{sport}/{season}?season_type=regular")
+
+  def get_trending_players(self, sport: str, season: str, add_or_drop: str) -> dict:
+    """Fetch player data for a sport and season.
+
+    Args:
+      sport: Sport key.
+      season: Season year.
+
+    Returns:
+      Player payload.
+    """
+    lookback_hours = self._trending_params.get("lookback_hours")
+    limit = self._trending_params.get("limit")
+
+    return self.get_by_path(f"players/{sport}/trending/{add_or_drop}?lookback_hours={lookback_hours}&limit={limit}")
 
   def get_stats(self, sport: str, season_type: str, season: int) -> dict:
     """Fetch season stats.

@@ -49,3 +49,21 @@ class PlayerRepository:
     players_by_id = self.load_players_by_id()
     player = players_by_id.get(player_id, {})
     return player
+
+  def get_trending_players(self, add_or_drop: str) -> list[dict]:
+    """Return a list of Player objects"""
+    trending_players = self.client.get_trending_players(
+        season=self.season,
+        sport=self.sport,
+        add_or_drop=add_or_drop
+      )
+
+    return [
+      {
+        "player_id": player['player_id'],
+        "player_obj": self.get_player(player['player_id']),
+        f"{add_or_drop}_count": player['count']
+      }
+      for player in trending_players
+    ]
+

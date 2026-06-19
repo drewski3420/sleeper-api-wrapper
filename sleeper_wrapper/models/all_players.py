@@ -35,3 +35,6 @@ class AllPlayers:
 
   def get_player(self, player_id: int | str) -> Player:
     return self.repository.get_player(player_id)
+
+  def get_trending_players(self, add_or_drop: str) -> list[dict]:
+    return self.repository.get_trending_players(add_or_drop=add_or_drop)
